@@ -1,6 +1,7 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
+from typing import Optional
 
 
 task_list = [
@@ -49,6 +50,53 @@ async def create_task(task: TaskCreate):
     new_task = {"id": next_id, "title": task.title, "done": False}
     task_list.append(new_task)
     return JSONResponse(status_code=201, content=new_task)
+
+
+
+
+# PUT functions
+
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    done: Optional[bool] = None
+
+@app.put("/tasks/{id}")
+async def update_task(id: int, update: TaskUpdate):
+    target_task = None
+    for task in task_list:
+        if task["id"] == id:
+            target_task = task
+            break
+
+    if target_task == None:
+        return JSONResponse(status_code=404, content={"error" : f"Task {id} not found"})
+    
+    if update.title == None and update.done == None:
+        return JSONResponse(status_code=400, content={"error": f"No update provided"})
+
+    if update.title != None and update.title.strip() == "":
+        return JSONResponse(status_code=404, content={"error": "Title cannot be empty"})
+    
+
+    if update.title != None:
+        target_task["title"] = update.title
+    if update.done != None:
+        target_task["done"] = update.done
+
+    return target_task
+
+
+
+# DELETE functions
+
+@app.delete("/tasks/{id}")
+async def delete_task(id: int):
+    for task in task_list:
+        if task["id"] == id:
+            task_list.remove(task)
+            return JSONResponse(status_code=204, content={"message": f"Task {id} successfully removed"})
+
+    return JSONResponse(status_code=404, content={"error": f"Task {id} not found"})
 
 
 

@@ -46,6 +46,7 @@ content-length: 40
 content-type: application/json
 
 {"id":4,"title":"Buy milk","done":false}
+
 (fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"\"}"
 HTTP/1.1 400 Bad Request
 date: Sat, 18 Jul 2026 09:38:16 GMT
@@ -62,5 +63,56 @@ content-type: application/json
 
 # Stage 4 - Full CRUD
 
-1. 
+1. run the server_crud.py with : fastapi dev server_crud.py 
+2. use curl command to do CRUD operation specified
+
+```cmd
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\":\"Go Exercise\"}"
+HTTP/1.1 201 Created
+date: Sat, 18 Jul 2026 13:04:30 GMT
+server: uvicorn
+content-length: 43
+content-type: application/json
+
+{"id":4,"title":"Go Exercise","done":false}
+
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
+[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"Go Exercise","done":false}]
+
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X PUT http://127.0.0.1:8000/tasks/4 -H "Content-Type: application/json" -d "{\"title\":\"Buy oat milk\"}"
+HTTP/1.1 200 OK
+date: Sat, 18 Jul 2026 13:20:42 GMT
+server: uvicorn
+content-length: 44
+content-type: application/json
+
+{"id":4,"title":"Buy oat milk","done":false}
+
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
+[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"Buy oat milk","done":false}]
+
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X PUT http://127.0.0.1:8000/tasks/3 -H "Content-Type: application/json" -d "{\"done\":true}"
+HTTP/1.1 200 OK
+date: Sat, 18 Jul 2026 13:21:10 GMT
+server: uvicorn
+content-length: 36
+content-type: application/json
+
+{"id":3,"title":"study","done":true}
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X DELETE http://127.0.0.1:8000/tasks/4
+HTTP/1.1 204 No Content
+date: Sat, 18 Jul 2026 13:25:33 GMT
+server: uvicorn
+content-type: application/json
+
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
+[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false}]
+
+```
 
