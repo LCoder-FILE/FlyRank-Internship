@@ -1,73 +1,40 @@
+# Task API — CRUD Checkpoint
 
-# Stage 0 - Hello, server
+A minimal FastAPI CRUD API for managing tasks. Built as part of the Week 2 "Build your first CRUD API" exercise.
 
-1. pip install "fastapi[standard]""
-2. run the server_crud.py with : fastapi dev server_crud.py -> **use this one to run** & make sure in ./"Backend AI Track"/"Week 2"/"Build your first CRUD API"/
-3. see the page with : curl -i http://127.0.0.1:8000/docs
+## Run Instructions
 
+```bash
+# 1. Install dependencies
+pip install "fastapi[standard]"
 
-# Stage 1 - Root and health endpoints
+# 2. Navigate to the project folder
+cd "./Backend AI Track/Week 2/Build your first CRUD API/"
 
-1. run the server_crud.py with : fastapi dev server_crud.py 
-2. see the returned json (root() | "/") with : curl http://127.0.0.1:8000/ (output should be {"name":"Task API","version":"1.0","endpoints":["/tasks"]})
-3. see the returned json (health() | "/health") : curl http://127.0.0.1:8000/health (output should be {"status":"ok"})
-
-
-# Stage 2 - Read endpoints with 404
-
-1. run the server_crud.py with : fastapi dev server_crud.py 
-2. see the returned json (tasks()) with : curl http://127.0.0.1:8000/tasks 
-3. search certain task with the id with : curl http://127.0.0.1:8000/tasks/id -> example : curl http://127.0.0.1:8000/tasks/2 -> {"id":2,"title":"laundry","done":true}
-4. if no task linked to given id -> curl http://127.0.0.1:8000/tasks/4 -> return {"detail":{"error":"Task 4 not found"} }
-
-```cmd
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks  
-[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false}]
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks/2
-{"id":2,"title":"laundry","done":true}
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks/4
-{"detail":{"error":"Task 4 not found"} } 
+# 3. Start the dev server
+fastapi dev server_crud.py
 ```
 
+Server runs at `http://127.0.0.1:8000`. Interactive Swagger docs are available at `http://127.0.0.1:8000/docs`.
 
-# Stage 3 - Create with validation
+## Endpoints
 
-1. run the server_crud.py with : fastapi dev server_crud.py 
-2. use curl command to add the task (both valid and empty task)
-3. validate the new task with : curl http://127.0.0.1:8000/tasks
+| Method | Path          | Description                          | Success | Error(s)             |
+|--------|---------------|---------------------------------------|---------|-----------------------|
+| GET    | `/`           | API info (name, version, endpoints)  | 200     | —                     |
+| GET    | `/health`     | Health check                          | 200     | —                     |
+| GET    | `/tasks`      | List all tasks                        | 200     | —                     |
+| GET    | `/tasks/{id}` | Get one task by id                    | 200     | 404 (id not found)    |
+| POST   | `/tasks`      | Create a new task                     | 201     | 400 (missing/empty title) |
+| PUT    | `/tasks/{id}` | Update a task's title and/or done     | 200     | 404, 400 (empty/invalid body) |
+| DELETE | `/tasks/{id}` | Delete a task                         | 204     | 404 (id not found)    |
 
+## Checkpoint — Full CRUD via curl
 
-```cmd
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\":\"Buy milk\"}"
-HTTP/1.1 201 Created
-date: Sat, 18 Jul 2026 09:38:09 GMT
-server: uvicorn
-content-length: 40
-content-type: application/json
-
-{"id":4,"title":"Buy milk","done":false}
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"\"}"
-HTTP/1.1 400 Bad Request
-date: Sat, 18 Jul 2026 09:38:16 GMT
-server: uvicorn
-content-length: 38
-content-type: application/json
-
-{"message":"Task's title is required"}
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
-[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"Buy milk","done":false}]
-```
-
-
-# Stage 4 - Full CRUD
-
-1. run the server_crud.py with : fastapi dev server_crud.py 
-2. use curl command to do CRUD operation specified
+Example: create → update → confirm.
 
 ```cmd
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\":\"Go Exercise\"}"
+(fenv-flyrank) D:\...\Build your first CRUD API>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\":\"Go Exercise\"}"
 HTTP/1.1 201 Created
 date: Sat, 18 Jul 2026 13:04:30 GMT
 server: uvicorn
@@ -75,44 +42,29 @@ content-length: 43
 content-type: application/json
 
 {"id":4,"title":"Go Exercise","done":false}
-
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
-[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"Go Exercise","done":false}]
-
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X PUT http://127.0.0.1:8000/tasks/4 -H "Content-Type: application/json" -d "{\"title\":\"Buy oat milk\"}"
-HTTP/1.1 200 OK
-date: Sat, 18 Jul 2026 13:20:42 GMT
-server: uvicorn
-content-length: 44
-content-type: application/json
-
-{"id":4,"title":"Buy oat milk","done":false}
-
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
-[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"Buy oat milk","done":false}]
-
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X PUT http://127.0.0.1:8000/tasks/3 -H "Content-Type: application/json" -d "{\"done\":true}"
-HTTP/1.1 200 OK
-date: Sat, 18 Jul 2026 13:21:10 GMT
-server: uvicorn
-content-length: 36
-content-type: application/json
-
-{"id":3,"title":"study","done":true}
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X DELETE http://127.0.0.1:8000/tasks/4
-HTTP/1.1 204 No Content
-date: Sat, 18 Jul 2026 13:25:33 GMT
-server: uvicorn
-content-type: application/json
-
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
-[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false}]
-
 ```
 
+The rest of the CRUD lifecycle (update title, mark done, delete, and confirm with `GET /tasks`) was verified end-to-end, hitting every required status code: `201`, `200`, `204`, `404`, `400`.
+
+## Swagger UI
+
+Screenshots of each operation group, tried out live in `/docs`:
+
+**Create**
+![Create](./screenshot/Stage%205%20-%20Swagger%20UI/Create.png)
+
+**Read**
+![Read](./screenshot/Stage%205%20-%20Swagger%20UI/Read.png)
+
+**Update**
+![Update](./screenshot/Stage%205%20-%20Swagger%20UI/Update.png)
+
+**Delete**
+![Delete](./screenshot/Stage%205%20-%20Swagger%20UI/Delete.png)
+
+## Repository
+
+```bash
+git clone https://github.com/LCoder-FILE/FlyRank-Internship
+```
+See: `FlyRank-Internship/Backend AI Track/Week 2/Build your first CRUD API`
