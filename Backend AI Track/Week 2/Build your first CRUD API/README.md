@@ -30,4 +30,16 @@
 ```
 
 
+# Stage 3 - Create with validation
+
+1. run the server_crud.py with : fastapi dev server_crud.py 
+2. go to the http://127.0.0.1:8000/docs and add the task there
+3. validate the new task with : curl http://127.0.0.1:8000/tasks
+4. task adding proof could be accessed in ./Backend AI Track/Week 2/Build your first CRUD API/screenshot_proof/Stage 3.png
+
+```cmd
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
+[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"swim","done":false}]
+```
+
 

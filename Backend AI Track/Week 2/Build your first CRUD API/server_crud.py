@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from pydantic import BaseModel
 
 
 task_list = [
@@ -8,6 +9,8 @@ task_list = [
 ]
 
 app = FastAPI()
+
+# GET functions
 
 @app.get("/")
 async def root():
@@ -28,6 +31,21 @@ async def get_task(id: int):
             return task
         
     raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
+
+
+
+# POST functions
+
+class TaskCreate(BaseModel):
+    title: str
+
+@app.post("/tasks", status_code=201)
+async def create_task(task: TaskCreate):
+    next_id = len(task_list) + 1
+    new_task = {"id": next_id, "title": task.title, "done": False}
+    task_list.append(new_task)
+    return new_task
+
 
 
 # to run : fastapi dev server_crud.py (use this one & make sure in ./Backend AI Track/Week 2/Build your first CRUD API/)
