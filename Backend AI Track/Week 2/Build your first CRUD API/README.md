@@ -33,13 +33,34 @@
 # Stage 3 - Create with validation
 
 1. run the server_crud.py with : fastapi dev server_crud.py 
-2. go to the http://127.0.0.1:8000/docs and add the task there
+2. use curl command to add the task (both valid and empty task)
 3. validate the new task with : curl http://127.0.0.1:8000/tasks
-4. task adding proof could be accessed in ./Backend AI Track/Week 2/Build your first CRUD API/screenshot_proof/Stage 3.png
+
 
 ```cmd
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\":\"Buy milk\"}"
+HTTP/1.1 201 Created
+date: Sat, 18 Jul 2026 09:38:09 GMT
+server: uvicorn
+content-length: 40
+content-type: application/json
+
+{"id":4,"title":"Buy milk","done":false}
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -i -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"\"}"
+HTTP/1.1 400 Bad Request
+date: Sat, 18 Jul 2026 09:38:16 GMT
+server: uvicorn
+content-length: 38
+content-type: application/json
+
+{"message":"Task's title is required"}
+
 (fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl http://127.0.0.1:8000/tasks
-[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"swim","done":false}]
+[{"id":1,"title":"cook","done":false},{"id":2,"title":"laundry","done":true},{"id":3,"title":"study","done":false},{"id":4,"title":"Buy milk","done":false}]
 ```
 
+
+# Stage 4 - Full CRUD
+
+1. 
 

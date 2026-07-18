@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 
 
@@ -39,12 +40,15 @@ async def get_task(id: int):
 class TaskCreate(BaseModel):
     title: str
 
-@app.post("/tasks", status_code=201)
+@app.post("/tasks")
 async def create_task(task: TaskCreate):
+    if not task.title or not task.title.strip():
+        return JSONResponse(status_code=400, content={"message" : "Task's title is required"}) 
+
     next_id = len(task_list) + 1
     new_task = {"id": next_id, "title": task.title, "done": False}
     task_list.append(new_task)
-    return new_task
+    return JSONResponse(status_code=201, content=new_task)
 
 
 
