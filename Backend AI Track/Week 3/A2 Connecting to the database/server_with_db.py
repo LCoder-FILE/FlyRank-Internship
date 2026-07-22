@@ -51,18 +51,25 @@ async def get_task(id: int):
 
 # POST functions
 
-# class TaskCreate(BaseModel):
-#     title: str
+class TaskCreate(BaseModel):
+    title: str
 
-# @app.post("/tasks")
-# async def create_task(task: TaskCreate):
-#     if not task.title or not task.title.strip():
-#         return JSONResponse(status_code=400, content={"message" : "Task's title is required"}) 
+@app.post("/tasks")
+async def create_task(task: TaskCreate):
+    if not task.title or not task.title.strip():
+        return JSONResponse(status_code=400, content={"message" : "Task's title is required"}) 
 
-#     next_id = len(task_list) + 1
-#     new_task = {"id": next_id, "title": task.title, "done": False}
-#     task_list.append(new_task)
-#     return JSONResponse(status_code=201, content=new_task)
+    add_task_query = "INSERT INTO tasks (title, done) VALUES (?, ?)"
+    cur.execute(add_task_query, (task.title, 0))
+
+    conn.commit()
+
+    new_task = {
+        "id" : cur.lastrowid,
+        "title" : task.title,
+        "done" : False
+    }
+    return JSONResponse(status_code=201, content=new_task)
 
 
 
@@ -130,3 +137,16 @@ curl -i http://127.0.0.1:8000/tasks/999 -> HTTP/1.1 404 Not Found + {"detail":{"
 commit : Stage 1: database read endpoints
 """
 
+
+"""
+Stage 2 : 
+
+curl -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"Go to school\"}" -> {"id":4,"title":"Go to school","done":false}
+curl -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"Exercise\"}" -> {"id":5,"title":"Exercise","done":false}
+
+-- reload the app (ctrl + C -> fastapi dev server_with_db.py) --
+
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Make a cup of coffee",0],[3,"Eat breakfast",0]],[4,"Go to school",0],[5,"Exercise",0]]
+
+commit : Stage 2: insert into database
+"""
