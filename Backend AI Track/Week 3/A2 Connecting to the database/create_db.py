@@ -32,4 +32,4 @@ conn.commit()
 conn.close()
 
 
-# run : python ./"Backend AI Track"/"Week 3"/"A2 Connecting to the database"/main.py
+# run : python ./"Backend AI Track"/"Week 3"/"A2 Connecting to the database"/create_db.py
