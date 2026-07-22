@@ -76,47 +76,53 @@ async def create_task(task: TaskCreate):
 
 # PUT functions
 
-# class TaskUpdate(BaseModel):
-#     title: Optional[str] = None
-#     done: Optional[bool] = None
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    done: Optional[bool] = None
 
-# @app.put("/tasks/{id}")
-# async def update_task(id: int, update: TaskUpdate):
-#     target_task = None
-#     for task in task_list:
-#         if task["id"] == id:
-#             target_task = task
-#             break
+@app.put("/tasks/{id}")
+async def update_task(id: int, update: TaskUpdate):
+    update_task_query = "UPDATE tasks SET title = ?, done = ? WHERE id = ?"
+    get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = ?"
 
-#     if target_task == None:
-#         return JSONResponse(status_code=404, content={"error" : f"Task {id} not found"})
+    cur.execute(get_tasks_by_id_query, (id, ))
+    searched_task = cur.fetchone()
+    if searched_task == None:
+        raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
     
-#     if update.title == None and update.done == None:
-#         return JSONResponse(status_code=400, content={"error": f"No update provided"})
+    if update.title == None and update.done == None:
+        return JSONResponse(status_code=400, content={"error": f"No update provided"})
 
-#     if update.title != None and update.title.strip() == "":
-#         return JSONResponse(status_code=404, content={"error": "Title cannot be empty"})
-    
+    if update.title != None and update.title.strip() == "":
+        return JSONResponse(status_code=404, content={"error": "Title cannot be empty"})
 
-#     if update.title != None:
-#         target_task["title"] = update.title
-#     if update.done != None:
-#         target_task["done"] = update.done
+    cur.execute(update_task_query, (update.title, update.done, id))
+    conn.commit()
 
-#     return target_task
+    cur.execute(get_tasks_by_id_query, (id, ))
+    updated_task = cur.fetchone()
+
+    return updated_task
 
 
 
 # DELETE functions
 
-# @app.delete("/tasks/{id}")
-# async def delete_task(id: int):
-#     for task in task_list:
-#         if task["id"] == id:
-#             task_list.remove(task)
-#             return JSONResponse(status_code=204, content={"message": f"Task {id} successfully removed"})
+@app.delete("/tasks/{id}")
+async def delete_task(id: int):
+    delete_task_by_id_query = "DELETE FROM tasks WHERE id = ?"
+    get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = ?"
+    
+    cur.execute(get_tasks_by_id_query, (id, ))
+    searched_task = cur.fetchone()
+    if searched_task == None:
+        raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
 
-#     return JSONResponse(status_code=404, content={"error": f"Task {id} not found"})
+    cur.execute(delete_task_by_id_query, (id, ))
+    conn.commit()
+    
+
+    return JSONResponse(status_code=200, content={"message": f"Task {id} successfully removed"})
 
 
 
@@ -150,3 +156,21 @@ curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Ma
 
 commit : Stage 2: insert into database
 """
+
+
+"""
+Stage 3 : 
+
+curl -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"Do Homework\"}" -> {"id":6,"title":"Do Homework","done":false}
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Make a cup of coffee",0],[3,"Eat breakfast",0],[4,"Go to school",0],[5,"Exercise",0],[6,"Do Homework",0]]
+
+curl -X PUT http://127.0.0.1:8000/tasks/6 -H "Content-Type: application/json" -d "{\"title\": \"Do Homework\", \"done\": true}" -> [6,"Do Homework",1]
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Make a cup of coffee",0],[3,"Eat breakfast",0],[4,"Go to school",0],[5,"Exercise",0],[6,"Do Homework",1]]
+
+curl -i -X DELETE http://127.0.0.1:8000/tasks/6 -> HTTP/1.1 200 OK + {"message":"Task 6 successfully removed"}
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Make a cup of coffee",0],[3,"Eat breakfast",0]],[4,"Go to school",0],[5,"Exercise",0]]
+
+
+commit : Stage 3: update and delete with SQL
+"""
+
