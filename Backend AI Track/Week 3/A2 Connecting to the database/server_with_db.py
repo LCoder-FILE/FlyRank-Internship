@@ -122,7 +122,7 @@ async def delete_task(id: int):
     conn.commit()
     
 
-    return JSONResponse(status_code=200, content={"message": f"Task {id} successfully removed"})
+    return JSONResponse(status_code=200, content={"message": f"Task {id} successfully removed"}) # tried 204 code but server return some error message (like the task not found)
 
 
 
@@ -174,3 +174,15 @@ curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Ma
 commit : Stage 3: update and delete with SQL
 """
 
+
+"""
+Stage 4 :
+
+after UPDATE tasks SET done = 1; 
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up",1],[2,"Make a cup of coffee",1],[3,"Eat breakfast",1],[4,"Go to school",1],[5,"Exercise",1]]
+
+after 
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + []
+
+commit : Stage 4: explored SQLite
+"""
