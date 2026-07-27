@@ -5,9 +5,6 @@
 __pycache__/
 *.pyc
 
-# Editor
-.vscode/
-
 # OS junk
 .DS_Store
 Thumbs.db

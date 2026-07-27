@@ -189,3 +189,48 @@ curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up early",tru
 ```cmd
 Stage 3: full CRUD on Postgres
 ```
+
+---
+
+# Stage 4
+
+## Checkpoints
+
+```cmd
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 3\A3 Containerize your stack>docker compose up
+[+] up 3/3
+ ✔ Network a3containerizeyourstack_default Created                                                                 0.1s
+ ✔ Container a3containerizeyourstack-db-1  Created                                                                 0.1s
+ ✔ Container a3containerizeyourstack-api-1 Created                                                                 0.1s
+Attaching to api-1, db-1
+db-1  | 
+db-1  | PostgreSQL Database directory appears to contain a database; Skipping initialization
+db-1  | 
+db-1  | 2026-07-27 12:39:45.729 UTC [1] LOG:  starting PostgreSQL 18.4 (Debian 18.4-1.pgdg13+1) on x86_64-pc-linux-gnu, compiled by gcc (Debian 14.2.0-19) 14.2.0, 64-bit
+db-1  | 2026-07-27 12:39:45.731 UTC [1] LOG:  listening on IPv4 address "0.0.0.0", port 5432
+db-1  | 2026-07-27 12:39:45.731 UTC [1] LOG:  listening on IPv6 address "::", port 5432
+db-1  | 2026-07-27 12:39:45.739 UTC [1] LOG:  listening on Unix socket "/var/run/postgresql/.s.PGSQL.5432"
+db-1  | 2026-07-27 12:39:45.758 UTC [32] LOG:  database system shutdown was interrupted; last known up at 2026-07-27 12:39:32 UTC
+db-1  | 2026-07-27 12:39:45.966 UTC [32] LOG:  database system was not properly shut down; automatic recovery in progress
+db-1  | 2026-07-27 12:39:45.970 UTC [32] LOG:  redo starts at 0/1BEF610
+db-1  | 2026-07-27 12:39:45.971 UTC [32] LOG:  invalid record length at 0/1BEF718: expected at least 24, got 0
+db-1  | 2026-07-27 12:39:45.971 UTC [32] LOG:  redo done at 0/1BEF6E0 system usage: CPU: user: 0.00 s, system: 0.00 s, elapsed: 0.00 s
+db-1  | 2026-07-27 12:39:45.983 UTC [30] LOG:  checkpoint starting: end-of-recovery immediate wait
+db-1  | 2026-07-27 12:39:46.058 UTC [30] LOG:  checkpoint complete: wrote 0 buffers (0.0%), wrote 3 SLRU buffers; 0 WAL file(s) added, 0 removed, 0 recycled; write=0.007 s, sync=0.003 s, total=0.082 s; sync files=2, longest=0.002 s, average=0.002 s; distance=0 kB, estimate=0 kB; lsn=0/1BEF718, redo lsn=0/1BEF718
+db-1  | 2026-07-27 12:39:46.063 UTC [1] LOG:  database system is ready to accept connections
+api-1  | Done insertion 3 sample tasks (seeds)
+api-1  | INFO:     Started server process [1]
+api-1  | INFO:     Waiting for application startup.
+api-1  | INFO:     Application startup complete.
+api-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+
+
+
+```
+
+
+## Commit 
+
+```cmd
+Stage 4: docker-compose the whole stack
+```
