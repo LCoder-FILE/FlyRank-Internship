@@ -223,9 +223,16 @@ api-1  | INFO:     Started server process [1]
 api-1  | INFO:     Waiting for application startup.
 api-1  | INFO:     Application startup complete.
 api-1  | INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+```
 
+```cmd
+curl -i http://127.0.0.1:8000/tasks -> api-1  | INFO:     172.18.0.1:52784 - "GET /tasks HTTP/1.1" 200 OK -> [[1,"Wake up early",true],[2,"Cook breakfast",false],[3,"Make a cup of coffee",false]]
 
+curl -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"Go to school\"}" -> api-1  | INFO:     172.18.0.1:59468 - "POST /tasks HTTP/1.1" 201 Created -> {"id":4,"title":"Go to school","done":false}
 
+curl -X PUT http://127.0.0.1:8000/tasks/4 -H "Content-Type: application/json" -d "{\"title\": \"Do Homework\", \"done\": true}" -> api-1  | INFO:     172.18.0.1:34330 - "PUT /tasks/4 HTTP/1.1" 200 OK -> [4,"Do Homework",true]
+
+curl -i -X DELETE http://127.0.0.1:8000/tasks/4 -> api-1  | INFO:     172.18.0.1:44934 - "DELETE /tasks/4 HTTP/1.1" 200 OK -> {"message":"Task 4 successfully removed"}
 ```
 
 
