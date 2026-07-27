@@ -164,3 +164,28 @@ curl -i http://127.0.0.1:8000/tasks/999 -> HTTP/1.1 404 Not Found + {"detail":{"
 ```cmd
 Stage 2: read from Postgres
 ```
+
+---
+
+# Stage 3
+
+## Checkpoints
+
+```cmd
+curl -X POST http://127.0.0.1:8000/tasks -H "Content-Type: application/json" -d "{\"title\": \"Go to school\"}" -> {"id":4,"title":"Go to school","done":false}
+curl -X PUT http://127.0.0.1:8000/tasks/4 -H "Content-Type: application/json" -d "{\"title\": \"Do Homework\", \"done\": true}" -> [4,"Do Homework",true]
+
+curl -i http://127.0.0.1:8000/tasks -> [[1,"Wake up early",true],[2,"Cook breakfast",false],[3,"Make a cup of coffee",false],[4,"Do Homework",true]]
+
+curl -i -X DELETE http://127.0.0.1:8000/tasks/4 -> HTTP/1.1 200 OK + {"message":"Task 4 successfully removed"}
+
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up early",true],[2,"Cook breakfast",false],[3,"Make a cup of coffee",false]]
+
+```
+
+
+## Commit 
+
+```cmd
+Stage 3: full CRUD on Postgres
+```

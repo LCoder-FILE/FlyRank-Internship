@@ -43,78 +43,79 @@ async def get_task(id: int):
 
 # POST functions
 
-# class TaskCreate(BaseModel):
-#     title: str
+class TaskCreate(BaseModel):
+    title: str
 
-# @app.post("/tasks")
-# async def create_task(task: TaskCreate):
-#     if not task.title or not task.title.strip():
-#         return JSONResponse(status_code=400, content={"message" : "Task's title is required"}) 
+@app.post("/tasks")
+async def create_task(task: TaskCreate):
+    if not task.title or not task.title.strip():
+        return JSONResponse(status_code=400, content={"message": "Task's title is required"})
 
-#     add_task_query = "INSERT INTO tasks (title, done) VALUES (?, ?)"
-#     cur.execute(add_task_query, (task.title, 0))
+    add_task_query = "INSERT INTO tasks (title, done) VALUES (%s, %s) RETURNING id, title, done"
+    cur.execute(add_task_query, (task.title, False))
 
-#     conn.commit()
+    new_task_row = cur.fetchone()
+    conn.commit()
 
-#     new_task = {
-#         "id" : cur.lastrowid,
-#         "title" : task.title,
-#         "done" : False
-#     }
-#     return JSONResponse(status_code=201, content=new_task)
+    new_task = {
+        "id": new_task_row[0],
+        "title": new_task_row[1],
+        "done": new_task_row[2],
+    }
+    return JSONResponse(status_code=201, content=new_task)
 
 
 
 
 # PUT functions
 
-# class TaskUpdate(BaseModel):
-#     title: Optional[str] = None
-#     done: Optional[bool] = None
+class TaskUpdate(BaseModel):
+    title: Optional[str] = None
+    done: Optional[bool] = None
 
-# @app.put("/tasks/{id}")
-# async def update_task(id: int, update: TaskUpdate):
-#     update_task_query = "UPDATE tasks SET title = ?, done = ? WHERE id = ?"
-#     get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = ?"
+@app.put("/tasks/{id}")
+async def update_task(id: int, update: TaskUpdate):
+    update_task_query = "UPDATE tasks SET title = %s, done = %s WHERE id = %s"
+    get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = %s"
 
-#     cur.execute(get_tasks_by_id_query, (id, ))
-#     searched_task = cur.fetchone()
-#     if searched_task == None:
-#         raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
+    cur.execute(get_tasks_by_id_query, (id, ))
+    searched_task = cur.fetchone()
+    if searched_task == None:
+        raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
     
-#     if update.title == None and update.done == None:
-#         return JSONResponse(status_code=400, content={"error": f"No update provided"})
+    if update.title == None and update.done == None:
+        return JSONResponse(status_code=400, content={"error": f"No update provided"})
 
-#     if update.title != None and update.title.strip() == "":
-#         return JSONResponse(status_code=404, content={"error": "Title cannot be empty"})
+    if update.title != None and update.title.strip() == "":
+        return JSONResponse(status_code=404, content={"error": "Title cannot be empty"})
 
-#     cur.execute(update_task_query, (update.title, update.done, id))
-#     conn.commit()
+    cur.execute(update_task_query, (update.title, update.done, id))
+    conn.commit()
 
-#     cur.execute(get_tasks_by_id_query, (id, ))
-#     updated_task = cur.fetchone()
+    cur.execute(get_tasks_by_id_query, (id, ))
+    updated_task = cur.fetchone()
 
-#     return updated_task
+    return updated_task
 
 
 
 # DELETE functions
 
-# @app.delete("/tasks/{id}")
-# async def delete_task(id: int):
-#     delete_task_by_id_query = "DELETE FROM tasks WHERE id = ?"
-#     get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = ?"
+@app.delete("/tasks/{id}")
+async def delete_task(id: int):
+    delete_task_by_id_query = "DELETE FROM tasks WHERE id = %s"
+    get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = %s"
     
-#     cur.execute(get_tasks_by_id_query, (id, ))
-#     searched_task = cur.fetchone()
-#     if searched_task == None:
-#         raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
+    cur.execute(get_tasks_by_id_query, (id, ))
+    searched_task = cur.fetchone()
+    if searched_task == None:
+        raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
 
-#     cur.execute(delete_task_by_id_query, (id, ))
-#     conn.commit()
+    cur.execute(delete_task_by_id_query, (id, ))
+    conn.commit()
     
 
-#     return JSONResponse(status_code=200, content={"message": f"Task {id} successfully removed"}) # tried 204 code but server return some error message (like the task not found)
+    return JSONResponse(status_code=200, content={"message": f"Task {id} successfully removed"}) # tried 204 code but server return some error message (like the task not found)
 
 
 
