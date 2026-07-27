@@ -12,32 +12,32 @@ app = FastAPI()
 
 # GET functions
 
-# @app.get("/")
-# async def root():
-#     return { "name": "Task API", "version": "1.0", "endpoints": ["/tasks"] } # API description
+@app.get("/")
+async def root():
+    return { "name": "Task API", "version": "1.0", "endpoints": ["/tasks"] } # API description
 
-# @app.get("/health")
-# async def health():
-#     return { "status": "ok" }
+@app.get("/health")
+async def health():
+    return { "status": "ok" }
 
-# @app.get("/tasks")
-# async def tasks():
-#     get_tasks_query = "SELECT * FROM tasks"
-#     cur.execute(get_tasks_query)
+@app.get("/tasks")
+async def tasks():
+    get_tasks_query = "SELECT * FROM tasks"
+    cur.execute(get_tasks_query)
 
-#     task_list = cur.fetchall()
-#     return task_list
+    task_list = cur.fetchall()
+    return task_list
 
-# @app.get("/tasks/{id}")
-# async def get_task(id: int):
-#     get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = ?"
-#     cur.execute(get_tasks_by_id_query, (id, ))
+@app.get("/tasks/{id}")
+async def get_task(id: int):
+    get_tasks_by_id_query = "SELECT * FROM tasks WHERE id = %s"
+    cur.execute(get_tasks_by_id_query, (id, ))
 
-#     searched_task = cur.fetchone()
-#     if searched_task == None:
-#         raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
-#     else:
-#         return searched_task
+    searched_task = cur.fetchone()
+    if searched_task == None:
+        raise HTTPException(status_code=404, detail={ "error": f"Task {id} not found" })
+    else:
+        return searched_task
 
 
 

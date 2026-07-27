@@ -145,3 +145,22 @@ Exist 3 rows - skipping seed
 ```cmd
 Stage 1: connect via .env and create table
 ```
+
+---
+
+# Stage 2
+
+## Checkpoints
+
+```cmd
+curl -i http://127.0.0.1:8000/tasks -> HTTP/1.1 200 OK + [[1,"Wake up early",true],[2,"Cook breakfast",false],[3,"Make a cup of coffee",false]]
+curl -i http://127.0.0.1:8000/tasks/999 -> HTTP/1.1 404 Not Found + {"detail":{"error":"Task 999 not found"} }
+
+```
+
+
+## Commit 
+
+```cmd
+Stage 2: read from Postgres
+```
