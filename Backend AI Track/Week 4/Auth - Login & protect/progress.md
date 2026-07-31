@@ -29,5 +29,5 @@ Server running and connected to Supabase
 ## Commit
 
 ```cmd
-
+Stage 0: setup server and supabase client
 ```
