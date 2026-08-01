@@ -202,3 +202,29 @@ server: uvicorn
 ```cmd
 Stage 4: auth middleware and logout endpoint
 ```
+
+---
+
+# Stage 5
+
+## Checkpoints
+
+```cmd
+curl -i -X POST http://127.0.0.1:8000/auth/login -H "Content-Type: application/json" -d "{\"email\":\"test@example.com\",\"password\":\"password123\"}"
+
+HTTP/1.1 200 OK
+date: Sat, 01 Aug 2026 14:24:18 GMT
+server: uvicorn
+content-length: 970
+content-type: application/json
+
+{"access_token":"my_access_token","refresh_token":"my_refresh_token"}
+```
+
+![Successful auth](./screenshot/swagger_ui.png)
+
+## Commit
+
+```cmd
+Stage 5: Swagger UI documentation with bearer auth
+```
