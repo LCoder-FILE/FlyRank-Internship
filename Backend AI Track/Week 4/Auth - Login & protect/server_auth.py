@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from typing import Optional
@@ -52,6 +52,35 @@ def health_check():
         "supabase_url": SUPABASE_URL,
         "supabase_client_initialized": supabase is not None,
     }
+
+
+@app.get("/public/info")
+def public_info():
+    return JSONResponse(
+        status_code=200,
+        content={"message": "Welcome stranger! This info is public."},
+    )
+
+
+@app.get("/protected/profile")
+def protected_profile(authorization: Optional[str] = Header(default=None)):
+    # Expect: "Authorization: Bearer <token>"
+    if not authorization or not authorization.startswith("Bearer "):
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Access token required"},
+        )
+
+    token = authorization.removeprefix("Bearer ").strip()
+
+    if not token:
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Access token required"},
+        )
+
+    # NOTE: token presence only — not verified yet, that's a later stage.
+    return {"message": "Token received", "token_preview": token[:12] + "..."}
 
 
 # POST functions

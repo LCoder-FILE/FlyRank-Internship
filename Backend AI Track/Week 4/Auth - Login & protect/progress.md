@@ -78,3 +78,38 @@ content-type: application/json
 ```cmd
 Stage 1: signup and login routes working
 ```
+
+---
+
+# Stage 2
+
+## Checkpoints
+
+```cmd
+curl -i http://127.0.0.1:8000/public/info
+
+HTTP/1.1 200 OK
+date: Sat, 01 Aug 2026 13:57:24 GMT
+server: uvicorn
+content-length: 52
+content-type: application/json
+
+{"message":"Welcome stranger! This info is public."}
+
+
+curl -i http://127.0.0.1:8000/protected/profile
+
+HTTP/1.1 401 Unauthorized
+date: Sat, 01 Aug 2026 13:57:36 GMT
+server: uvicorn
+content-length: 33
+content-type: application/json
+
+{"error":"Access token required"}
+```
+
+## Commit
+
+```cmd
+Stage 2: public route and unverified protected route
+```
