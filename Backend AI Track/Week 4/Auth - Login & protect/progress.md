@@ -149,3 +149,56 @@ content-type: application/json
 ```cmd
 Stage 3: profile route token verification
 ```
+
+---
+
+# Stage 4
+
+## Checkpoints
+
+```cmd
+curl -i -X POST http://127.0.0.1:8000/auth/login -H "Content-Type: application/json" -d "{\"email\":\"test@example.com\",\"password\":\"password123\"}"
+
+HTTP/1.1 200 OK
+date: Sat, 01 Aug 2026 14:24:18 GMT
+server: uvicorn
+content-length: 970
+content-type: application/json
+
+{"access_token":"my_access_token","refresh_token":"my_refresh_token"}
+
+
+curl -i http://127.0.0.1:8000/protected/dashboard -H "Authorization: Bearer my_access_token"
+
+HTTP/1.1 200 OK
+date: Sat, 01 Aug 2026 14:26:58 GMT
+server: uvicorn
+content-length: 58
+content-type: application/json
+
+{"message":"Welcome to your dashboard, test@example.com."}
+
+
+curl -i http://127.0.0.1:8000/protected/dashboard -H "Authorization: Bearer garbage"
+
+HTTP/1.1 401 Unauthorized
+date: Sat, 01 Aug 2026 14:27:22 GMT
+server: uvicorn
+content-length: 36
+content-type: application/json
+
+{"error":"Invalid or expired token"}
+
+
+curl -i -X POST http://127.0.0.1:8000/auth/logout -H "Authorization: Bearer my_access_token"
+
+HTTP/1.1 204 No Content
+date: Sat, 01 Aug 2026 14:28:18 GMT
+server: uvicorn
+```
+
+## Commit
+
+```cmd
+Stage 4: auth middleware and logout endpoint
+```
