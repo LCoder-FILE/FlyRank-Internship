@@ -7,7 +7,7 @@ from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
 
-# Application setup 
+# Application setup
 
 load_dotenv()
 
@@ -37,12 +37,12 @@ async def verify_supabase_connection():
         print(f"Error : {e}")
 
 
-
 # GET functions
 
 @app.get("/")
 def read_root():
     return {"message": "FastAPI + Supabase is running"}
+
 
 @app.get("/health")
 def health_check():
@@ -54,8 +54,64 @@ def health_check():
     }
 
 
+# POST functions
+
+class AuthRequest(BaseModel):
+    email: Optional[str] = None
+    password: Optional[str] = None
 
 
+@app.post("/auth/signup")
+def signup(payload: AuthRequest):
+    # Server never trusts the client — validate before touching Supabase
+    if not payload.email or not payload.password:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Bad Request: email and password are required"},
+        )
 
-# to run : fastapi dev server_auth.py (use this one & make sure in ./Backend AI Track/Week 4/Auth - Login & protect/)
+    try:
+        result = supabase.auth.sign_up(
+            {"email": payload.email, "password": payload.password}
+        )
+    except Exception as e:
+        # Supabase's own validation errors (duplicate email, weak password, etc.)
+        # are client-input problems, so surface as 400 rather than 500.
+        return JSONResponse(status_code=400, content={"error": str(e)})
 
+    return JSONResponse(
+        status_code=201,
+        content={"user": result.user.model_dump(mode="json") if result.user else None},
+    )
+
+
+@app.post("/auth/login")
+def login(payload: AuthRequest):
+    if not payload.email or not payload.password:
+        return JSONResponse(
+            status_code=400,
+            content={"error": "Bad Request: email and password are required"},
+        )
+
+    try:
+        result = supabase.auth.sign_in_with_password(
+            {"email": payload.email, "password": payload.password}
+        )
+    except Exception:
+        # Supabase throws on invalid credentials — map to the exact body
+        # shape required: {"error": "..."}
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Invalid login credentials"},
+        )
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "access_token": result.session.access_token,
+            "refresh_token": result.session.refresh_token,
+        },
+    )
+
+
+# to run: fastapi dev server_auth.py
