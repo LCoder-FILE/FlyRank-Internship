@@ -79,8 +79,32 @@ def protected_profile(authorization: Optional[str] = Header(default=None)):
             content={"error": "Access token required"},
         )
 
-    # NOTE: token presence only — not verified yet, that's a later stage.
-    return {"message": "Token received", "token_preview": token[:12] + "..."}
+    # Ask Supabase to verify the token — this is a real network call,
+    # so an expired, tampered, or fabricated token gets caught here.
+    try:
+        result = supabase.auth.get_user(token)
+    except Exception:
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Invalid or expired token"},
+        )
+
+    if not result or not result.user:
+        return JSONResponse(
+            status_code=401,
+            content={"error": "Invalid or expired token"},
+        )
+
+    user = result.user
+
+    return JSONResponse(
+        status_code=200,
+        content={
+            "id": user.id,
+            "email": user.email,
+            "created_at": user.created_at.isoformat() if hasattr(user.created_at, "isoformat") else str(user.created_at),
+        },
+    )
 
 
 # POST functions
