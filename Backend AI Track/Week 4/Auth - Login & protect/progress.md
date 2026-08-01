@@ -228,3 +228,13 @@ content-type: application/json
 ```cmd
 Stage 5: Swagger UI documentation with bearer auth
 ```
+
+---
+
+# Stage 6
+
+## Commit
+
+```cmd
+Stage 6: publish to GitHub and write README — then push everything.
+```
