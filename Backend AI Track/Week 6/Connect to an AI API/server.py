@@ -7,7 +7,9 @@ from typing import Optional
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+
 from llm.schema import NormalizeInput, NormalizeOutput, CanonicalTitle
+from llm.client import call_model
 
 # Application setup
 
@@ -183,16 +185,12 @@ def login(payload: AuthRequest):
     )
 
 
-@app.post("/normalize", response_model=NormalizeOutput)
+@app.post("/normalize")
 def normalize(payload: NormalizeInput):
-    print(f"LLM_STUB = {os.getenv('LLM_STUB')}")
     if os.getenv("LLM_STUB") == "1":
-        return NormalizeOutput(
-            canonical_title=CanonicalTitle.software_engineer,
-            confidence=0.99,
-            original=payload.title,
-        )
-    raise HTTPException(status_code=501, detail={"error": "model call not wired yet"})
+        return NormalizeOutput(canonical_title=CanonicalTitle.software_engineer, confidence=0.99, original=payload.title)
+    raw = call_model(payload.title)
+    return {"raw": raw}
 
 
 @app.post("/auth/logout")
@@ -208,4 +206,4 @@ def logout(current=Depends(get_current_user)):
 
 
 # to current dir (from FlyRank-Internship) : cd "Backend AI Track/Week 6/Connect to an AI API"
-# to run: fastapi dev server.py
+# to run: set LLM_STUB=0&& fastapi dev server.py

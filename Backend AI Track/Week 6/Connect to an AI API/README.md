@@ -78,8 +78,20 @@ LLM_STUB = 1
 
 ### Stage 2 — Prompt as a versioned spec
 
-[FILL IN: link to prompts/normalize-v1.md, note anything surprising from testing
-3 real inputs]
+set LLM_STUB=0&& fastapi dev server.py
+
+Server running and connected to Supabase
+ ▕  Application startup complete.
+ ▕  127.0.0.1:53096 - "POST /normalize HTTP/1.1" 200
+ ▕  127.0.0.1:53132 - "POST /normalize HTTP/1.1" 200
+ ▕  127.0.0.1:53142 - "POST /normalize HTTP/1.1" 200
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"   
+{"raw":"```json\n{\n  \"canonical_title\": \"senior_software_engineer\",\n  \"confidence\": 0.9\n}\n```"}
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Product Owner\"}"
+{"raw":"```json\n{\n  \"canonical_title\": \"product_owner\",\n  \"confidence\": 0.95\n}\n```"}
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Chief Happiness Officer\"}"
+{"raw":"{\"canonical_title\": \"other\", \"confidence\": 0.2}"}
 
 ### Stage 3 — Parse, validate, repair, quarantine
 [FILL IN: confirm repair-retry works, note what a quarantined entry looks like]
