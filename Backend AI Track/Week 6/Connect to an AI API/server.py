@@ -7,7 +7,9 @@ from typing import Optional
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+import json
 
+from llm.parse import get_normalized
 from llm.schema import NormalizeInput, NormalizeOutput, CanonicalTitle
 from llm.client import call_model
 
@@ -185,12 +187,28 @@ def login(payload: AuthRequest):
     )
 
 
-@app.post("/normalize")
+
+@app.post("/normalize", response_model=NormalizeOutput)
 def normalize(payload: NormalizeInput):
     if os.getenv("LLM_STUB") == "1":
-        return NormalizeOutput(canonical_title=CanonicalTitle.software_engineer, confidence=0.99, original=payload.title)
-    raw = call_model(payload.title)
-    return {"raw": raw}
+        return NormalizeOutput(
+            canonical_title=CanonicalTitle.software_engineer,
+            confidence=0.99,
+            original=payload.title,
+        )
+
+    result, error = get_normalized(payload.title)
+    if error:
+        os.makedirs("logs", exist_ok=True)
+        with open("logs/quarantine.jsonl", "a") as f:
+            f.write(json.dumps({
+                "input": payload.title,
+                "error": error,
+                "prompt_version": "v1",
+            }) + "\n")
+        raise HTTPException(status_code=422, detail={"error": "model could not produce a valid result"})
+
+    return result
 
 
 @app.post("/auth/logout")

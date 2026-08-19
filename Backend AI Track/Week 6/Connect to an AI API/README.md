@@ -94,7 +94,14 @@ Server running and connected to Supabase
 {"raw":"{\"canonical_title\": \"other\", \"confidence\": 0.2}"}
 
 ### Stage 3 — Parse, validate, repair, quarantine
-[FILL IN: confirm repair-retry works, note what a quarantined entry looks like]
+
+Tried forcing a validation failure via prompt override; gemma3:1b resisted even a first-position, repeated, explicit contradictory instruction — it stuck to its trained categories. A real failure was instead observed naturally on 'Product Owner', which the model got wrong even after one repair retry; this correctly triggered a 422 and a quarantine log entry (see logs/quarantine.jsonl)."
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
+{"canonical_title":"senior_software_engineer","confidence":0.95,"original":"Sr. SWE II"}
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Product Owner\"}"
+{"error":"model could not produce a valid result"}
+
 
 ### Stage 4 — Timeout, retries, cost logging, kill switch
 [FILL IN: timeout value used, which errors are retried, one cost-log example line,
