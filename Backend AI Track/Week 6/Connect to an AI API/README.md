@@ -54,16 +54,30 @@ every provider through the same OpenAI-compatible client.
 
 ## Stage log
 
-### Stage 0 — Provider setup ✅
+### Stage 0 — Provider setup 
+
 Confirmed a working round-trip to the model from `llm/client.py`. The only difference
 between running a model on my laptop vs. a datacenter is three environment variables
 (`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`) — nothing else in the code changes.
 
 ### Stage 1 — Endpoint, validation, stub mode
-[FILL IN: describe input validation rules, what LLM_STUB=1 returns, and paste both
-curl examples — one valid (200) and one invalid (422/400, naming the bad field)]
+
+Server running and connected to Supabase
+ ▕  Application startup complete.
+LLM_STUB = 1
+ ▕  127.0.0.1:62977 - "POST /normalize HTTP/1.1" 200
+LLM_STUB = 1
+ ▕  127.0.0.1:62989 - "POST /normalize HTTP/1.1" 200
+ ▕  127.0.0.1:62994 - "POST /normalize HTTP/1.1" 422
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>set LLM_STUB=1&& fastapi dev server.py
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://127.0.0.1:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
+{"canonical_title":"software_engineer","confidence":0.99,"original":"Sr. SWE II"}
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"\"}"
+{"detail":[{"type":"string_too_short","loc":["body","title"],"msg":"String should have at least 1 character","input":"","ctx":{"min_length":1} }]}
 
 ### Stage 2 — Prompt as a versioned spec
+
 [FILL IN: link to prompts/normalize-v1.md, note anything surprising from testing
 3 real inputs]
 

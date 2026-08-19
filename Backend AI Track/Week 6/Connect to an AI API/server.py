@@ -7,6 +7,7 @@ from typing import Optional
 from supabase import create_client, Client
 from dotenv import load_dotenv
 import os
+from llm.schema import NormalizeInput, NormalizeOutput, CanonicalTitle
 
 # Application setup
 
@@ -36,7 +37,7 @@ async def http_exception_handler(request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail})
 
 
-# Confirmation function
+# Confirmation / helper function
 
 @app.on_event("startup")
 async def verify_supabase_connection():
@@ -45,6 +46,32 @@ async def verify_supabase_connection():
         print("Server running and connected to Supabase")
     except Exception as e:
         print(f"Error : {e}")
+
+
+bearer_scheme = HTTPBearer(auto_error=False)
+
+def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)):
+    if not credentials or not credentials.credentials:
+        raise HTTPException(status_code=401, detail={"error": "Access token required"})
+
+    token = credentials.credentials.strip()
+
+    if not token:
+        raise HTTPException(status_code=401, detail={"error": "Access token required"})
+
+    # Real network call to Supabase — this is what makes the check trustworthy.
+    try:
+        result = supabase.auth.get_user(token)
+    except Exception:
+        raise HTTPException(status_code=401, detail={"error": "Invalid or expired token"})
+
+    if not result or not result.user:
+        raise HTTPException(status_code=401, detail={"error": "Invalid or expired token"})
+
+    # Attach both the verified user and the raw token — routes like logout
+    # need the token itself, not just the user object.
+    return {"user": result.user, "token": token}
+
 
 
 # GET functions
@@ -62,6 +89,38 @@ def health_check():
         "supabase_url": SUPABASE_URL,
         "supabase_client_initialized": supabase is not None,
     }
+
+@app.get("/public/info")
+def public_info():
+    return JSONResponse(
+        status_code=200,
+        content={"message": "Welcome stranger! This info is public."},
+    )
+
+
+@app.get("/protected/profile")
+def protected_profile(current=Depends(get_current_user)):
+    user = current["user"]
+    return JSONResponse(
+        status_code=200,
+        content={
+            "id": user.id,
+            "email": user.email,
+            "created_at": user.created_at.isoformat() if hasattr(user.created_at, "isoformat") else str(user.created_at),
+        },
+    )
+
+
+@app.get("/protected/dashboard")
+def protected_dashboard(current=Depends(get_current_user)):
+    # No new auth code — same guard, reused.
+    user = current["user"]
+    return JSONResponse(
+        status_code=200,
+        content={"message": f"Welcome to your dashboard, {user.email}."},
+    )
+
+
 
 
 # POST functions
@@ -124,72 +183,16 @@ def login(payload: AuthRequest):
     )
 
 
-# Public routes (Stage 2)
-
-@app.get("/public/info")
-def public_info():
-    return JSONResponse(
-        status_code=200,
-        content={"message": "Welcome stranger! This info is public."},
-    )
-
-
-# Reusable auth guard (Stage 4) + Swagger security scheme (Stage 5)
-# HTTPBearer registers a "bearerAuth" scheme in the OpenAPI doc. Any route
-# whose dependency chain includes it gets a lock icon in Swagger, and the
-# "Authorize" button lets you paste a token once and reuse it across routes.
-# auto_error=False so we keep full control of the 401 body shape instead of
-# FastAPI's default {"detail": "Not authenticated"}.
-
-bearer_scheme = HTTPBearer(auto_error=False)
-
-
-def get_current_user(credentials: Optional[HTTPAuthorizationCredentials] = Depends(bearer_scheme)):
-    if not credentials or not credentials.credentials:
-        raise HTTPException(status_code=401, detail={"error": "Access token required"})
-
-    token = credentials.credentials.strip()
-
-    if not token:
-        raise HTTPException(status_code=401, detail={"error": "Access token required"})
-
-    # Real network call to Supabase — this is what makes the check trustworthy.
-    try:
-        result = supabase.auth.get_user(token)
-    except Exception:
-        raise HTTPException(status_code=401, detail={"error": "Invalid or expired token"})
-
-    if not result or not result.user:
-        raise HTTPException(status_code=401, detail={"error": "Invalid or expired token"})
-
-    # Attach both the verified user and the raw token — routes like logout
-    # need the token itself, not just the user object.
-    return {"user": result.user, "token": token}
-
-
-# Protected routes (Stage 3 + 4)
-
-@app.get("/protected/profile")
-def protected_profile(current=Depends(get_current_user)):
-    user = current["user"]
-    return JSONResponse(
-        status_code=200,
-        content={
-            "id": user.id,
-            "email": user.email,
-            "created_at": user.created_at.isoformat() if hasattr(user.created_at, "isoformat") else str(user.created_at),
-        },
-    )
-
-
-@app.get("/protected/dashboard")
-def protected_dashboard(current=Depends(get_current_user)):
-    # No new auth code — same guard, reused.
-    user = current["user"]
-    return JSONResponse(
-        status_code=200,
-        content={"message": f"Welcome to your dashboard, {user.email}."},
-    )
+@app.post("/normalize", response_model=NormalizeOutput)
+def normalize(payload: NormalizeInput):
+    print(f"LLM_STUB = {os.getenv('LLM_STUB')}")
+    if os.getenv("LLM_STUB") == "1":
+        return NormalizeOutput(
+            canonical_title=CanonicalTitle.software_engineer,
+            confidence=0.99,
+            original=payload.title,
+        )
+    raise HTTPException(status_code=501, detail={"error": "model call not wired yet"})
 
 
 @app.post("/auth/logout")
@@ -202,4 +205,7 @@ def logout(current=Depends(get_current_user)):
     return Response(status_code=204)
 
 
-# to run: fastapi dev server_auth.py
+
+
+# to current dir (from FlyRank-Internship) : cd "Backend AI Track/Week 6/Connect to an AI API"
+# to run: fastapi dev server.py
