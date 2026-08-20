@@ -4,23 +4,24 @@ FlyRank Internship · Backend AI Track · Week 7 · A17
 
 ## What this does
 
-Takes a messy job title string (e.g. "Sr. SWE II", "Senior Software Eng.") and returns
-a single canonical title from a fixed list, with a confidence score. One request in,
-one structured JSON answer out — no conversation, no memory.
+Takes a messy job title string (e.g. "Sr. SWE II", "Senior Software Eng.", "senior dev")
+and returns a single canonical title from a fixed list, with a confidence score.
+One request in, one structured JSON answer out — no conversation, no memory of
+previous requests.
 
 ## Quickstart
 
 ```bash
-# 1. Clone and install
+# 1. Install dependencies
 pip install -r requirements.txt
 
 # 2. Copy env template and fill in your values
 cp .env.example .env
 
-# 3. Start Ollama (see Provider section below)
+# 3. Start Ollama (see Provider section below for local-GPU caveats)
 ollama serve
 
-# 4. Run the API
+# 4. In a second terminal, run the API
 fastapi dev server.py
 ```
 
@@ -30,9 +31,19 @@ curl -X POST http://localhost:8000/normalize \
   -H "Content-Type: application/json" \
   -d '{"title": "Sr. SWE II"}'
 ```
-Expected response:
+**Real response:**
 ```json
-[PASTE YOUR REAL RESPONSE HERE ONCE STAGE 1/3 IS WORKING]
+{"canonical_title":"senior_software_engineer","confidence":0.9,"original":"Sr. SWE II"}
+```
+
+**Invalid input example** (empty title, rejected before any model call):
+```bash
+curl -X POST http://localhost:8000/normalize \
+  -H "Content-Type: application/json" \
+  -d '{"title": ""}'
+```
+```json
+{"detail":[{"type":"string_too_short","loc":["body","title"],"msg":"String should have at least 1 character","input":"","ctx":{"min_length":1}}]}
 ```
 
 ## Job card
@@ -42,114 +53,54 @@ and "must never" rules.
 
 ## Provider
 
-- **Provider:** Ollama (local)
-- **Model:** `gemma3:1b`
-- **Env vars needed:** `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`
-- Note: this machine's NVIDIA driver (12.7) is incompatible with Ollama's CUDA build,
-  so inference runs on CPU (`CUDA_VISIBLE_DEVICES=cpu`) rather than GPU.
+| | |
+|---|---|
+| Provider | Ollama (local) |
+| Model | `gemma3:1b` |
+| Env vars needed | `LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL` |
 
-Swapping to a different provider (e.g. OpenRouter) only requires changing these three
-`.env` values — nothing else in the code changes. That's the whole point of routing
-every provider through the same OpenAI-compatible client.
+Swapping providers (e.g. to OpenRouter) only requires changing these three `.env`
+values — nothing else in the code changes, since everything goes through the same
+OpenAI-compatible client.
 
-## Stage log
+**Local GPU note:** this machine's NVIDIA driver (12.7) is incompatible with
+Ollama's bundled CUDA build, causing a crash during inference (`CUDA error: the
+provided PTX was compiled with an unsupported toolchain`). Worked around by forcing
+CPU-only inference:
+```bash
+set CUDA_VISIBLE_DEVICES=cpu
+ollama serve
+```
 
-### Stage 0 — Provider setup 
+## Reliability
 
-Confirmed a working round-trip to the model from `llm/client.py`. The only difference
-between running a model on my laptop vs. a datacenter is three environment variables
-(`LLM_BASE_URL`, `LLM_API_KEY`, `LLM_MODEL`) — nothing else in the code changes.
+- **Timeout:** 30s, set explicitly on the client (SDK default is 10 minutes).
+- **Retries:** on timeout, 429, and 5xx only — never on 400/401/403 — with
+  exponential backoff + jitter, max 3 attempts. Verified: pointing at an
+  unreachable URL fails fast with no retry spam.
+- **Cost logging:** one structured JSON line per model call —
+  `{"prompt_version": "v1", "model": "gemma3:1b", "input_tokens": 251, "output_tokens": 32, "duration_ms": 4362, "repaired": false}`
+- **Kill switch:** `LLM_ENABLED=false` returns an immediate `503` with zero model
+  calls. Verified.
 
-### Stage 1 — Endpoint, validation, stub mode
+## Trustworthy output
 
-Server running and connected to Supabase
- ▕  Application startup complete.
-LLM_STUB = 1
- ▕  127.0.0.1:62977 - "POST /normalize HTTP/1.1" 200
-LLM_STUB = 1
- ▕  127.0.0.1:62989 - "POST /normalize HTTP/1.1" 200
- ▕  127.0.0.1:62994 - "POST /normalize HTTP/1.1" 422
+Model output is parsed, stripped of markdown code fences, and validated against
+the schema before anything is returned. On validation failure, one repair retry is
+attempted (the model is shown its own broken output plus the exact error). If that
+also fails, the endpoint returns a `422` and logs the failure to
+`logs/quarantine.jsonl` — raw model text is never returned to the caller.
 
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>set LLM_STUB=1&& fastapi dev server.py
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://127.0.0.1:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
-{"canonical_title":"software_engineer","confidence":0.99,"original":"Sr. SWE II"}
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"\"}"
-{"detail":[{"type":"string_too_short","loc":["body","title"],"msg":"String should have at least 1 character","input":"","ctx":{"min_length":1} }]}
+**Real quarantine example:** the input "Product Owner" caused `gemma3:1b` to invent
+an out-of-enum category (`product_owner`) on both the original call and the repair
+retry — it appears to have a strong prior toward this as a "real" title. Correctly
+resulted in a `422` and a logged entry instead of bad data reaching the caller.
 
-### Stage 2 — Prompt as a versioned spec
+I also tried forcing a validation failure by adding a contradictory instruction
+("always output X") to the prompt — even a first-position, repeated, explicit
+override was ignored by the model in favor of its few-shot examples and training
+priors. Small models appear to weight examples/priors over blunt instructions.
 
-set LLM_STUB=0&& fastapi dev server.py
+## Eval results
 
-Server running and connected to Supabase
- ▕  Application startup complete.
- ▕  127.0.0.1:53096 - "POST /normalize HTTP/1.1" 200
- ▕  127.0.0.1:53132 - "POST /normalize HTTP/1.1" 200
- ▕  127.0.0.1:53142 - "POST /normalize HTTP/1.1" 200
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"   
-{"raw":"```json\n{\n  \"canonical_title\": \"senior_software_engineer\",\n  \"confidence\": 0.9\n}\n```"}
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Product Owner\"}"
-{"raw":"```json\n{\n  \"canonical_title\": \"product_owner\",\n  \"confidence\": 0.95\n}\n```"}
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Chief Happiness Officer\"}"
-{"raw":"{\"canonical_title\": \"other\", \"confidence\": 0.2}"}
-
-### Stage 3 — Parse, validate, repair, quarantine
-
-Tried forcing a validation failure via prompt override; gemma3:1b resisted even a first-position, repeated, explicit contradictory instruction — it stuck to its trained categories. A real failure was instead observed naturally on 'Product Owner', which the model got wrong even after one repair retry; this correctly triggered a 422 and a quarantine log entry (see logs/quarantine.jsonl)."
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
-{"canonical_title":"senior_software_engineer","confidence":0.95,"original":"Sr. SWE II"}
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Product Owner\"}"
-{"error":"model could not produce a valid result"}
-
-
-### Stage 4 — Timeout, retries, cost logging, kill switch
-
-set LLM_ENABLED=true
-fastapi dev server.py
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
-{"canonical_title":"senior_software_engineer","confidence":0.9,"original":"Sr. SWE II"}
-
-set LLM_ENABLED=false
-fastapi dev server.py
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
-{"error":"LLM feature disabled"}
-
-set LLM_BASE_URL=http://localhost:9999/v1/
-fastapi dev server.py
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
-Internal Server Error
-
-set LLM_BASE_URL=http://localhost:11434/v1/
-fastapi dev server.py
-
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
-{"canonical_title":"senior_software_engineer","confidence":0.9,"original":"Sr. SWE II"}
-
- ▕  Will watch for changes in these directories: ['D:\\6.5th Semester CIT\\flyrank\\FlyRank-Internship\\Backend AI Track\\Week 6\\Connect to an AI API']
- ▕  Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
- ▕  Started reloader process [22916] using WatchFiles
- ▕  Started server process [34948]
- ▕  Waiting for application startup.
-Server running and connected to Supabase
- ▕  Application startup complete.
-{"prompt_version": "v1", "model": "gemma3:1b", "input_tokens": 251, "output_tokens": 32, "duration_ms": 4362, "repaired": false}
- ▕  127.0.0.1:63161 - "POST /normalize HTTP/1.1" 200
-
-
-### Stage 5 — Eval results
-(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>python evals/run.py
-
-Score: 6/8 (75%)
-
-Failures:
-  'Senior Software Eng.' -> expected senior_software_engineer, got software_engineer
-  'senior dev' -> expected senior_software_engineer, got software_engineer
-
-## What I'd fix with another day
-
-I'd test whether a larger model (llama3.2:3b) reduces the invented-category failures I saw with gemma3:1b on ambiguous titles like 'Product Owner'.
-
+**Score: 6/8 (75%)** — 2026-08-19 — prompt v1
