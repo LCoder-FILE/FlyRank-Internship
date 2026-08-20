@@ -141,12 +141,15 @@ Server running and connected to Supabase
 
 
 ### Stage 5 — Eval results
-[FILL IN: score, date, prompt version, e.g. "6/8 (75%) — 2026-08-25 — prompt v1"]
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 6\Connect to an AI API>python evals/run.py
+
+Score: 6/8 (75%)
+
+Failures:
+  'Senior Software Eng.' -> expected senior_software_engineer, got software_engineer
+  'senior dev' -> expected senior_software_engineer, got software_engineer
 
 ## What I'd fix with another day
 
-[FILL IN once you're at Stage 5]
+I'd test whether a larger model (llama3.2:3b) reduces the invented-category failures I saw with gemma3:1b on ambiguous titles like 'Product Owner'.
 
-## AI vs me (bonus stage, if attempted)
-
-[FILL IN if you do the bonus stage]

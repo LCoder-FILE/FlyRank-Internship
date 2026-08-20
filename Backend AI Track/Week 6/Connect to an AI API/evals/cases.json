@@ -1,0 +1,10 @@
+[
+  {"title": "Sr. SWE II", "expected": "senior_software_engineer"},
+  {"title": "Senior Software Eng.", "expected": "senior_software_engineer"},
+  {"title": "senior dev", "expected": "senior_software_engineer"},
+  {"title": "Software Engineer I", "expected": "software_engineer"},
+  {"title": "SWE", "expected": "software_engineer"},
+  {"title": "Engineering Manager", "expected": "engineering_manager"},
+  {"title": "Head of Data Science", "expected": "data_scientist"},
+  {"title": "Chief Happiness Officer", "expected": "other"}
+]

@@ -47,7 +47,7 @@ def call_model(title: str) -> tuple[str, dict]:
     print(json.dumps(log_line))
     return res.choices[0].message.content, log_line
 
-    
+
 
 
 def call_with_retry(fn, max_attempts=3):
@@ -64,7 +64,7 @@ def call_with_retry(fn, max_attempts=3):
             if attempt == max_attempts -1:
                 raise
 
-        time.sleep((2*attempt) + random.uniform(0,0.5))
+        time.sleep((2**attempt) + random.uniform(0,0.5))
 
 
 if __name__ == "__main__":
