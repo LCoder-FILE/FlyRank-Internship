@@ -190,6 +190,9 @@ def login(payload: AuthRequest):
 
 @app.post("/normalize", response_model=NormalizeOutput)
 def normalize(payload: NormalizeInput):
+    if os.getenv("LLM_ENABLED", "true").lower() == "false":
+        raise HTTPException(status_code=503, detail={"error": "LLM feature disabled"})
+
     if os.getenv("LLM_STUB") == "1":
         return NormalizeOutput(
             canonical_title=CanonicalTitle.software_engineer,

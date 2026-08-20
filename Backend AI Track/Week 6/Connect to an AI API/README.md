@@ -104,8 +104,41 @@ Tried forcing a validation failure via prompt override; gemma3:1b resisted even 
 
 
 ### Stage 4 — Timeout, retries, cost logging, kill switch
-[FILL IN: timeout value used, which errors are retried, one cost-log example line,
-confirm LLM_ENABLED=false behavior]
+
+set LLM_ENABLED=true
+fastapi dev server.py
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
+{"canonical_title":"senior_software_engineer","confidence":0.9,"original":"Sr. SWE II"}
+
+set LLM_ENABLED=false
+fastapi dev server.py
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
+{"error":"LLM feature disabled"}
+
+set LLM_BASE_URL=http://localhost:9999/v1/
+fastapi dev server.py
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
+Internal Server Error
+
+set LLM_BASE_URL=http://localhost:11434/v1/
+fastapi dev server.py
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship>curl -X POST http://localhost:8000/normalize -H "Content-Type: application/json" -d "{\"title\": \"Sr. SWE II\"}"
+{"canonical_title":"senior_software_engineer","confidence":0.9,"original":"Sr. SWE II"}
+
+ ▕  Will watch for changes in these directories: ['D:\\6.5th Semester CIT\\flyrank\\FlyRank-Internship\\Backend AI Track\\Week 6\\Connect to an AI API']
+ ▕  Uvicorn running on http://127.0.0.1:8000 (Press CTRL+C to quit)
+ ▕  Started reloader process [22916] using WatchFiles
+ ▕  Started server process [34948]
+ ▕  Waiting for application startup.
+Server running and connected to Supabase
+ ▕  Application startup complete.
+{"prompt_version": "v1", "model": "gemma3:1b", "input_tokens": 251, "output_tokens": 32, "duration_ms": 4362, "repaired": false}
+ ▕  127.0.0.1:63161 - "POST /normalize HTTP/1.1" 200
+
 
 ### Stage 5 — Eval results
 [FILL IN: score, date, prompt version, e.g. "6/8 (75%) — 2026-08-25 — prompt v1"]
