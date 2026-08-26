@@ -9,10 +9,10 @@ Repo: **[ link ]**
 ## Stage 0 — The setup
 **Goal:** `GET /health` → `{ "status": "ok" }`, Playwright + Chromium installed
 
-- [OK] Server starts (`Express :3000` / `FastAPI :8000`)
-- [OK] Playwright installed: `pip install playwright` / `npm install playwright`
-- [OK] Chromium installed: `playwright install chromium` / `npx playwright install chromium`
-- [OK] Checkpoint run:
+- [x] Server starts (`Express :3000` / `FastAPI :8000`)
+- [x] Playwright installed: `pip install playwright` / `npm install playwright`
+- [x] Chromium installed: `playwright install chromium` / `npx playwright install chromium`
+- [x] Checkpoint run:
   ```
   $ curl -i http://localhost:8000/health
     HTTP/1.1 200 OK
@@ -23,8 +23,8 @@ Repo: **[ link ]**
 
     {"status":"ok"}
   ```
-- [OK] `playwright install chromium` finished without errors
-- [OK] Committed: `Stage 0: setup ready`
+- [x] `playwright install chromium` finished without errors
+- [x] Committed: `Stage 0: setup ready`
 
 Notes:
 
@@ -33,17 +33,30 @@ Notes:
 ## Stage 1 — Data worth reporting on
 **Goal:** `report.db` seeded, idempotent (running seed twice ≠ double rows)
 
-- [ ] Dataset chosen: **[ Shop / Bookstore ]**
-- [ ] `report.db` created with table (`orders` or `books`)
-- [ ] `seed` script writes ~200 orders (or 60 books)
-- [ ] Seed script deletes existing rows first (safe to run twice)
-- [ ] Checkpoint — ran seed twice, row count still correct:
+- [x] Dataset chosen: **[ Shop / Bookstore ]**
+- [x] `report.db` created with table (`orders` or `books`)
+- [x] `seed` script writes ~200 orders (or 60 books)
+- [x] Seed script deletes existing rows first (safe to run twice)
+- [x] Checkpoint — ran seed twice, row count still correct:
   ```
   $ [seed command] && [seed command]
   $ [query command] -> SELECT COUNT(*)
-  [paste output here]
+  
+    FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>python seed.py
+    Seeded 100 books.
+
+    FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>python seed.py
+    Seeded 100 books.
+
+    FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>sqlite3 report.db "SELECT COUNT(*) FROM books;"
+    ╭──────────╮
+    │ COUNT(*) │
+    ╞══════════╡
+    │      100 │
+    ╰──────────╯
+
   ```
-- [ ] Committed: `Stage 1: seeded report.db`
+- [x] Committed: `Stage 1: seeded report.db`
 
 Notes:
 

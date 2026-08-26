@@ -1,6 +1,13 @@
+import json
+
 from fastapi import FastAPI
+from pathlib import Path
+
+
+# Application setup
 
 app = FastAPI()
+
 
 # GET Functions
 
