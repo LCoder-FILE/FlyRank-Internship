@@ -150,16 +150,16 @@ Notes:
 ## Stage 5 — Publish to GitHub
 **Goal:** public repo + README a stranger can run in <5 min
 
-- [ ] Repo is public: `[link]`
-- [ ] README includes:
-  - [ ] What this is
-  - [ ] How to run (2 commands: API + Dev Server)
-  - [ ] Endpoint/function table
-  - [ ] Pasted 202 + poll proof
-  - [ ] Stage 3 sentence
-  - [ ] Stage 4 sentences
-  - [ ] Dashboard screenshot
-- [ ] Committed: `Stage 5: publish and docs`
+- [OK] Repo is public: `[link]`
+- [OK] README includes:
+  - [OK] What this is
+  - [OK] How to run (2 commands: API + Dev Server)
+  - [OK] Endpoint/function table
+  - [OK] Pasted 202 + poll proof
+  - [OK] Stage 3 sentence
+  - [OK] Stage 4 sentences
+  - [OK] Dashboard screenshot
+- [OK] Committed: `Stage 5: publish and docs`
 
 Notes:
 
