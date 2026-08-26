@@ -6,10 +6,12 @@ from datetime import datetime, date
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi import Body
 
 from report_data import get_report_data
 from render import build_html, render_pdf
+from pydantic import BaseModel
 
 
 # Application setup
@@ -86,20 +88,36 @@ def get_report_file(report_id: str):
 
 # POST Functions
 
+class ReportRequest(BaseModel):
+    force: bool = False
+
 @app.post("/reports", status_code=201)
-def create_report():
+def create_report(body: ReportRequest = ReportRequest()):
+    force = body.force
+    today = date.today().isoformat()
+
+    conn = get_connection()
+
+    if not force:
+        existing = conn.execute(
+            "SELECT * FROM reports WHERE created_at LIKE ? ORDER BY created_at DESC LIMIT 1",
+            (f"{today}%",),
+        ).fetchone()
+
+        if existing is not None:
+            conn.close()
+            return JSONResponse(
+                status_code=200,
+                content={"id": existing["id"], "file": f"/reports/{existing['id']}/file"},
+            )
+
     report_id = str(uuid.uuid4())
     pdf_path = REPORTS_DIR / f"{report_id}.pdf"
 
-    # Query
     data = get_report_data()
-
-    # Render
     html = build_html(data)
     render_pdf(html, str(pdf_path))
 
-    # Store
-    conn = get_connection()
     conn.execute(
         "INSERT INTO reports (id, path, created_at) VALUES (?, ?, ?)",
         (report_id, str(pdf_path), datetime.now().isoformat()),

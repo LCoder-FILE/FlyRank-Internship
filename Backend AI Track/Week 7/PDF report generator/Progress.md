@@ -195,27 +195,49 @@ Notes:
 ## Stage 5 — Ask twice, get one
 **Goal:** Two rapid `POST /reports` → same id, one new file; `force: true` → new id
 
-- [ ] `POST /reports` checks for an existing report from today before generating
-- [ ] Same-day duplicate → returns existing `id` + link with `200` (not `201`)
-- [ ] `{ "force": true }` bypasses the check and generates a new one
-- [ ] Checkpoint — two rapid POSTs:
+- [x] `POST /reports` checks for an existing report from today before generating
+- [x] Same-day duplicate → returns existing `id` + link with `200` (not `201`)
+- [x] `{ "force": true }` bypasses the check and generates a new one
+- [x] Checkpoint — two rapid POSTs:
   ```
   $ curl -i -X POST http://localhost:8000/reports
   $ curl -i -X POST http://localhost:8000/reports
-  [paste both responses — same id?]
+
+    HTTP/1.1 200 OK
+    date: Wed, 26 Aug 2026 18:25:29 GMT
+    server: uvicorn
+    content-length: 105
+    content-type: application/json
+
+    {"id":"daa4dde6-ca38-4fff-ac17-e6b4d095fa9c","file":"/reports/daa4dde6-ca38-4fff-ac17-e6b4d095fa9c/file"}
+
+    HTTP/1.1 200 OK
+    date: Wed, 26 Aug 2026 18:25:29 GMT
+    server: uvicorn
+    content-length: 105
+    content-type: application/json
+
+    {"id":"daa4dde6-ca38-4fff-ac17-e6b4d095fa9c","file":"/reports/daa4dde6-ca38-4fff-ac17-e6b4d095fa9c/file"}
   ```
   - Only one new file appeared in `reports/`: **[ yes/no ]**
-- [ ] Checkpoint — with `force: true`:
+- [x] Checkpoint — with `force: true`:
   ```
   $ curl -i -X POST http://localhost:8000/reports -d '{"force": true}'
-  [paste output — new id?]
+  
+    HTTP/1.1 201 Created
+    date: Wed, 26 Aug 2026 18:25:40 GMT
+    server: uvicorn
+    content-length: 105
+    content-type: application/json
+
+    {"id":"de0c2a83-da9a-4236-b171-7d3ea7441a1c","file":"/reports/de0c2a83-da9a-4236-b171-7d3ea7441a1c/file"}
   ```
-- [ ] README sentences written:
+- [x] README sentences written:
   1. What this check protects against:
-     > [your sentence]
+     > Double processing the same thing
   2. Real-world example where a missing check like this costs money:
-     > [your sentence]
-- [ ] Committed: `Stage 5: duplicate requests make one report`
+     > Multiple API call to services doing same thing is waste of money
+- [x] Committed: `Stage 5: duplicate requests make one report`
 
 Notes:
 
