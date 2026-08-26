@@ -246,17 +246,17 @@ Notes:
 ## Stage 6 — Publish to GitHub
 **Goal:** public repo + README a stranger can run in <5 min
 
-- [ ] `reports/` and `report.db` added to `.gitignore`
-- [ ] Repo is public: `[link]`
-- [ ] README includes:
-  - [ ] What this is + dataset chosen
-  - [ ] How to run (seed command + API command)
-  - [ ] Pasted aggregation SQL
-  - [ ] POST → download proof
-  - [ ] Stage 4 sentence
-  - [ ] Stage 5 sentences
-  - [ ] Screenshot of page 1 of a generated PDF
-- [ ] Committed: `Stage 6: publish and docs`
+- [x] `reports/` and `report.db` added to `.gitignore`
+- [x] Repo is public: `[link]`
+- [x] README includes:
+  - [x] What this is + dataset chosen
+  - [x] How to run (seed command + API command)
+  - [x] Pasted aggregation SQL
+  - [x] POST → download proof
+  - [x] Stage 4 sentence
+  - [x] Stage 5 sentences
+  - [x] Screenshot of page 1 of a generated PDF
+- [x] Committed: `Stage 6: publish and docs`
 
 Notes:
 
