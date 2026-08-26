@@ -8,10 +8,10 @@ Repo: **[ link ]**
 ## Stage 0 — Hello, server
 **Goal:** `GET /health` → `{ "status": "ok" }`
 
-- [OK] Server starts (`Express :3000` / `FastAPI :8000`)
+- [OK] Server starts (`Express :8000` / `FastAPI :8000`)
 - [OK] Checkpoint run:
   ```
-  $ curl -i http://localhost:3000/health
+  $ curl -i http://localhost:8000/health
   [paste output here]
   ```
 - [OK] Committed: `Stage 0: hello server`
@@ -35,7 +35,7 @@ content-type: application/json
 - [OK] `inngest` installed
 - [OK] Client created (id: `report-api`)
 - [OK] Function `say-hello` created, triggered by `test/hello`
-- [OK] Dev Server running: `npx inngest-cli@latest dev -u http://localhost:3000/api/inngest`
+- [OK] Dev Server running: `npx inngest-cli@latest dev -u http://localhost:8000/api/inngest`
 - [OK] Dashboard (`localhost:8288`) shows `say-hello` run → **Completed**
 - [OK] Screenshot / notes on the run:
 - [OK] Committed: `Stage 1: Inngest connected, first function runs`
@@ -90,18 +90,24 @@ Notes:
 ## Stage 3 — Jobs fail. Watch the retry.
 **Goal:** `topic: "fail"` triggers 3 attempts (retries: 2), ends Failed; bad input is 400, no job
 
-- [ ] `build-report` throws when `topic === "fail"`
-- [ ] Function config: `retries: 2`
-- [ ] Dashboard shows: attempt 1 fail → wait → attempt 2 → attempt 3 → **Failed**
+- [OK] `build-report` throws when `topic === "fail"`
+- [OK] Function config: `retries: 2`
+- [OK] Dashboard shows: attempt 1 fail → wait → attempt 2 → attempt 3 → **Failed**
   - Screenshot / notes:
-- [ ] `POST /reports` with no `topic` → `400`, no event sent
+- [OK] `POST /reports` with no `topic` → `400`, no event sent
   ```
-  $ curl -i -X POST http://localhost:3000/reports -H "Content-Type: application/json" -d '{}'
-  [paste output here]
+  $ curl -i -X POST http://localhost:8000/reports -H "Content-Type: application/json" -d '{}'
+  HTTP/1.1 400 Bad Request
+    date: Wed, 26 Aug 2026 10:04:58 GMT
+    server: uvicorn
+    content-length: 30
+    content-type: application/json
+
+    {"detail":"topic is required"}
   ```
-- [ ] README sentence written: *why retries ≠ validation*
-  > [your sentence here]
-- [ ] Committed: `Stage 3: retries seen, bad input rejected`
+- [OK] README sentence written: *why retries ≠ validation*
+  > retries are given to bad moments that could be server's fault (network fault, computation fault, etc) while bad input doesnt count as server's fault so calling error is fine.
+- [OK] Committed: `Stage 3: retries seen, bad input rejected`
 
 Notes:
 

@@ -42,6 +42,7 @@ async def say_hello(ctx: inngest.Context) -> str:
 @inngest_client.create_function(
     fn_id="make-report",
     trigger=inngest.TriggerEvent(event="report/requested"),
+    retries=2,
 )
 async def make_report(ctx: inngest.Context) -> None:
     report_id = ctx.event.data["id"]
@@ -50,6 +51,8 @@ async def make_report(ctx: inngest.Context) -> None:
     await ctx.step.sleep("do-the-slow-work", datetime.timedelta(seconds=8))
 
     async def _build_report():
+        if topic == "fail":
+            raise Exception("The report oven is broken!")
         result = f"Report on '{topic}': here are 3 interesting facts..."
         reports[report_id]["status"] = "done"
         reports[report_id]["result"] = result
