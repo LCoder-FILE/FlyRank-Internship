@@ -10,6 +10,11 @@ def get_report_data():
     conn = get_connection()
     conn.row_factory = sqlite3.Row
 
+    all_books = conn.execute(
+        "SELECT title, price, rating FROM books ORDER BY title"
+    ).fetchall()
+    all_books = [dict(row) for row in all_books]
+
     total_books = conn.execute(
         "SELECT COUNT(*) AS count FROM books"
     ).fetchone()["count"]
@@ -31,6 +36,7 @@ def get_report_data():
     conn.close()
 
     return {
+        "all_books": all_books,
         "total_books": total_books,
         "average_price": round(avg_price, 2) if avg_price else 0,
         "top_5_expensive": top_5,

@@ -132,17 +132,32 @@ Notes:
 ## Stage 3 — Render: from numbers to a PDF
 **Goal:** `reports/test.pdf` — ≥2 pages, no row cut by a page break, header repeats
 
-- [ ] HTML template built from report object (title + date, totals, top-5 table, long table)
-- [ ] Playwright renders HTML → PDF (`reports/test.pdf`)
-- [ ] Found the page-break trap (a row sliced in half)
-- [ ] Fixed with print CSS: `tr { break-inside: avoid; }` + `<thead>` repeats per page
-- [ ] Checkpoint — opened `reports/test.pdf`:
+- [x] HTML template built from report object (title + date, totals, top-5 table, long table)
+- [x] Playwright renders HTML → PDF (`reports/test.pdf`)
+- [x] Found the page-break trap (a row sliced in half)
+- [x] Fixed with print CSS: `tr { break-inside: avoid; }` + `<thead>` repeats per page
+- [x] Checkpoint — opened `reports/test.pdf`:
   - Pages: **[ n ]**
-  - No row cut in half: **[ yes/no ]**
-  - Header repeats on page 2+: **[ yes/no ]**
-- [ ] Committed: `Stage 3: HTML to PDF with clean page breaks`
+  - No row cut in half: **[ yes ]**
+  - Header repeats on page 2+: **[ yes ]**
+- [x] Committed: `Stage 3: HTML to PDF with clean page breaks`
 
 Notes:
+
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>echo %PLAYWRIGHT_BROWSERS_PATH%
+%PLAYWRIGHT_BROWSERS_PATH%
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>set PLAYWRIGHT_BROWSERS_PATH=D:\ms-playwright
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>echo %PLAYWRIGHT_BROWSERS_PATH%              
+D:\ms-playwright
+
+(fenv-flyrank) D:\6.5th Semester CIT\flyrank\FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>python render.py
+Saved reports/test.pdf
+
+
+Before this, the chromium need to be re-installed (remember to change if download in custom directory)
 
 ---
 
