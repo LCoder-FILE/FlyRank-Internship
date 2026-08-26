@@ -61,6 +61,16 @@ async def make_report(ctx: inngest.Context) -> None:
     await ctx.step.run("build-report", _build_report)
 
 
+@inngest_client.create_function(
+    fn_id="heartbeat",
+    trigger=inngest.TriggerCron(cron="* * * * *"),
+)
+async def heartbeat(ctx: inngest.Context) -> None:
+    pending = sum(1 for r in reports.values() if r["status"] == "pending")
+    done = sum(1 for r in reports.values() if r["status"] == "done")
+    failed = sum(1 for r in reports.values() if r["status"] == "failed")
+    ctx.logger.info(f"Heartbeat: pending={pending}, done={done}, failed={failed}")
+
 
 # GET Functions
 
@@ -103,7 +113,7 @@ async def create_report(body: ReportRequest):
 
 
 
-inngest.fast_api.serve(app, inngest_client, [say_hello, make_report])
+inngest.fast_api.serve(app, inngest_client, [say_hello, make_report, heartbeat])
 
 # to current dir (from FlyRank-Internship) : cd "Backend AI Track/Week 7/Your first background job"
 # to run : fastapi dev server.py (terminal 1)  +  npx inngest-cli@latest dev -u http://localhost:8000/api/inngest (terminal 2)

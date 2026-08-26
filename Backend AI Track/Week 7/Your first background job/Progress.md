@@ -116,14 +116,32 @@ Notes:
 ## Stage 4 — The clock knocks: your first cron job
 **Goal:** `heartbeat` function runs every minute on a cron trigger, logs pending/done/failed counts
 
-- [ ] `heartbeat` function created with schedule `* * * * *`
-- [ ] Logs one summary line per run (pending / done / failed counts)
-- [ ] Dashboard shows ≥2 `heartbeat` runs, 1 minute apart
+- [OK] `heartbeat` function created with schedule `* * * * *`
+- [OK] Logs one summary line per run (pending / done / failed counts)
+- [OK] Dashboard shows ≥2 `heartbeat` runs, 1 minute apart
   - Screenshot / notes:
-- [ ] README sentences written:
+
+ ▕  Heartbeat: pending=0, done=0, failed=0
+ ▕  127.0.0.1:49856 - "POST /api/inngest?fnId=report-api-heartbeat&stepId=step HTTP/1.1" 200
+ ▕  127.0.0.1:49859 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51876 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51878 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51881 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51887 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51890 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51893 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51899 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51902 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51905 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51910 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  127.0.0.1:51918 - "PUT /api/inngest HTTP/1.1" 200
+ ▕  Heartbeat: pending=0, done=0, failed=0
+ ▕  127.0.0.1:51920 - "POST /api/inngest?fnId=report-api-heartbeat&stepId=step HTTP/1.1" 200
+
+- [OK] README sentences written:
   - Cron for "every day at 08:00": `[expression]`
   - Cron for "every Sunday at 22:00": `[expression]`
-- [ ] Committed: `Stage 4: cron heartbeat`
+- [OK] Committed: `Stage 4: cron heartbeat`
 
 Notes:
 
