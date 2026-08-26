@@ -53,24 +53,37 @@ Notes:
 ## Stage 2 — The fast door: accept now, work later
 **Goal:** `POST /reports` returns 202 instantly; `make-report` does the 8s work; `GET /reports/:id` polls status
 
-- [ ] In-memory `reports` store created
-- [ ] `POST /reports` validates input, sends `report/requested` event, returns `202`
-- [ ] `make-report` function: `step.sleep("do-the-slow-work", "8s")` → `step.run("build-report", ...)`
-- [ ] `GET /reports/:id` returns `pending` then `done`; unknown id → `404`
-- [ ] Checkpoint run (timed POST):
+- [OK] In-memory `reports` store created
+- [OK] `POST /reports` validates input, sends `report/requested` event, returns `202`
+- [OK] `make-report` function: `step.sleep("do-the-slow-work", "8s")` → `step.run("build-report", ...)`
+- [OK] `GET /reports/:id` returns `pending` then `done`; unknown id → `404`
+- [OK] Checkpoint run (timed POST):
   ```
-  $ time curl -i -X POST http://localhost:3000/reports -H "Content-Type: application/json" -d '{"topic":"cats"}'
-  [paste output + timing here]
+  $ curl -i -X POST http://localhost:8000/reports -H "Content-Type: application/json" -d '{"topic":"cats"}'
+  HTTP/1.1 202 Accepted
+    date: Wed, 26 Aug 2026 08:22:28 GMT
+    server: uvicorn
+    content-length: 64
+    content-type: application/json
+
+    {"id":"20ada31b-3824-4c77-9b7a-cf749a8d716f","status":"pending"}
+
   ```
 - [ ] Checkpoint run (poll ~10s later):
   ```
-  $ curl -i http://localhost:3000/reports/<id>
-  [paste "pending" output]
-  [paste "done" output, ~10s later]
+  $ curl -i http://localhost:8000/reports/<id>
+    HTTP/1.1 200 OK
+    date: Wed, 26 Aug 2026 08:57:57 GMT
+    server: uvicorn
+    content-length: 137
+    content-type: application/json
+
+    {"id":"3c6a9feb-e341-48e0-bb17-85351ec959e9","topic":"cats","status":"done","result":"Report on 'cats': here are 3 interesting facts..."}
   ```
-- [ ] Committed: `Stage 2: 202 + background job + status endpoint`
+- [OK] Committed: `Stage 2: 202 + background job + status endpoint`
 
 Notes:
+
 
 ---
 
