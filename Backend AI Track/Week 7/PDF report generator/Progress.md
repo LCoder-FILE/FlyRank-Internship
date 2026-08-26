@@ -164,23 +164,29 @@ Before this, the chromium need to be re-installed (remember to change if downloa
 ## Stage 4 — Serve it from your API
 **Goal:** `POST /reports` generates + returns link; `GET /reports/:id/file` downloads the PDF
 
-- [ ] `reports` table added to `report.db` (`id`, `path`, `created_at`)
-- [ ] `POST /reports` — runs query → render → save row, returns `201` + `{id, file}`
-- [ ] `GET /reports/:id` → the row + file link; unknown id → `404`
-- [ ] `GET /reports/:id/file` → serves the PDF from disk
-- [ ] Checkpoint (timed POST):
+- [x] `reports` table added to `report.db` (`id`, `path`, `created_at`)
+- [x] `POST /reports` — runs query → render → save row, returns `201` + `{id, file}`
+- [x] `GET /reports/:id` → the row + file link; unknown id → `404`
+- [x] `GET /reports/:id/file` → serves the PDF from disk
+- [x] Checkpoint (timed POST):
   ```
-  $ time curl -i -X POST http://localhost:8000/reports
-  [paste output + timing — note the visible pause]
+  $ curl -i -X POST http://localhost:8000/reports
+    HTTP/1.1 201 Created
+    date: Wed, 26 Aug 2026 13:30:13 GMT
+    server: uvicorn
+    content-length: 105
+    content-type: application/json
+
+    {"id":"a14d4a42-a068-418e-ba28-6ad561d0c4a9","file":"/reports/a14d4a42-a068-418e-ba28-6ad561d0c4a9/file"}
   ```
-- [ ] Checkpoint (download):
+- [x] Checkpoint (download):
   ```
   $ curl -o my-report.pdf http://localhost:8000/reports/<id>/file
   [confirm file opens as a real PDF]
   ```
-- [ ] README sentence written: *at what point would you move this to a background job?*
+- [x] README sentence written: *at what point would you move this to a background job?*
   > [your sentence here]
-- [ ] Committed: `Stage 4: generate and serve by link`
+- [x] Committed: `Stage 4: generate and serve by link`
 
 Notes:
 
