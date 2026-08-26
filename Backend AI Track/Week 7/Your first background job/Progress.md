@@ -32,15 +32,21 @@ content-type: application/json
 ## Stage 1 — Hire the worker: connect Inngest
 **Goal:** Inngest client + `say-hello` function (sleep 5s) wired at `/api/inngest`
 
-- [ ] `inngest` installed
-- [ ] Client created (id: `report-api`)
-- [ ] Function `say-hello` created, triggered by `test/hello`
-- [ ] Dev Server running: `npx inngest-cli@latest dev -u http://localhost:3000/api/inngest`
-- [ ] Dashboard (`localhost:8288`) shows `say-hello` run → **Completed**
-- [ ] Screenshot / notes on the run:
-- [ ] Committed: `Stage 1: Inngest connected, first function runs`
+- [OK] `inngest` installed
+- [OK] Client created (id: `report-api`)
+- [OK] Function `say-hello` created, triggered by `test/hello`
+- [OK] Dev Server running: `npx inngest-cli@latest dev -u http://localhost:3000/api/inngest`
+- [OK] Dashboard (`localhost:8288`) shows `say-hello` run → **Completed**
+- [OK] Screenshot / notes on the run:
+- [OK] Committed: `Stage 1: Inngest connected, first function runs`
 
 Notes:
+
+[07:43:13.866] INF apps synced, disabling auto-discovery
+[07:45:04.140] INF publishing event caller=devserver event_name=inngest/function.invoked internal_id=01M0YGF74CG5P0C66CHCBVN164 external_id=01M0YGF74CVQJTTSMVX2CBJ3MJ event="{ID:01M0YGF74CVQJTTSMVX2CBJ3MJ Name:inngest/function.invoked Data:map[_inngest:{InvokeType: InvokeIdempotencyKey: SourceAppID: SourceFnID: SourceFnVersion:0 InvokeFnID:report-api-say-hello InvokeCorrelationId: InvokeTraceCarrier:<nil> InvokeSpanRef:<nil> InvokeExpiresAt:0 InvokeGroupID: InvokeDisplayName: DebugSessionID:<nil> DebugRunID:<nil>}] Timestamp:1787730304140 Version: Meta:{Sessions:map[] PropagatedSessions:map[] sessionTombstones:[] clearPropagated:false} User:map[] size:0}"
+[07:45:04.279] INF received event event=inngest/function.invoked event_id=01M0YGF74CVQJTTSMVX2CBJ3MJ internal_id=01M0YGF74CG5P0C66CHCBVN164
+[07:45:04.280] INF initializing fn event=inngest/function.invoked event_id=01M0YGF74CVQJTTSMVX2CBJ3MJ internal_id=01M0YGF74CG5P0C66CHCBVN164 function=say-hello function_id=4e18be14-9017-56fd-b596-aa2b90c110d5
+[07:45:09.538] INF received event event=inngest/function.finished event_id=01M0YGFCA56BTMV1AMJG8JFM6N internal_id=01M0YGFCA5RG8111PRT1ZE2TF9
 
 ---
 
