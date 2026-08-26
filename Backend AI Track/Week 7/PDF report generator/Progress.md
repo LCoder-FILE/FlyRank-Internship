@@ -65,17 +65,65 @@ Notes:
 ## Stage 2 — Boring SQL is 80% of reporting
 **Goal:** `getReportData()` returns totals, top 5, and a grouped breakdown
 
-- [ ] Query: total count
-- [ ] Query: total revenue (`SUM`) / average price (`AVG`)
-- [ ] Query: top 5 (products by revenue / books by price)
-- [ ] Query: grouped breakdown (orders per day last 7 days / books per rating)
-- [ ] All four combined into one `getReportData()` function
-- [ ] Checkpoint — test script prints full report object:
+- [x] Query: total count
+- [x] Query: total revenue (`SUM`) / average price (`AVG`)
+- [x] Query: top 5 (products by revenue / books by price)
+- [x] Query: grouped breakdown (orders per day last 7 days / books per rating)
+- [x] All four combined into one `getReportData()` function
+- [x] Checkpoint — test script prints full report object:
   ```
-  [paste JSON output here]
+    FlyRank-Internship\Backend AI Track\Week 7\PDF report generator>python report_data.py
+    {
+    "total_books": 100,
+    "average_price": 34.56,
+    "top_5_expensive": [
+        {
+        "title": "The Death of Humanity: and the Case for Life",
+        "price": 58.11
+        },
+        {
+        "title": "Slow States of Collapse: Poems",
+        "price": 57.31
+        },
+        {
+        "title": "Our Band Could Be Your Life: Scenes from the American Indie Underground, 1981-1991",
+        "price": 57.25
+        },
+        {
+        "title": "The Past Never Ends",
+        "price": 56.5
+        },
+        {
+        "title": "The Pioneer Woman Cooks: Dinnertime: Comfort Classics, Freezer Food, 16-Minute Meals, and Other Delicious Ways to Solve Supper!",
+        "price": 56.41
+        }
+    ],
+    "books_per_rating": [
+        {
+        "rating": 1,
+        "count": 22
+        },
+        {
+        "rating": 2,
+        "count": 19
+        },
+        {
+        "rating": 3,
+        "count": 22
+        },
+        {
+        "rating": 4,
+        "count": 18
+        },
+        {
+        "rating": 5,
+        "count": 19
+        }
+    ]
+    }
   ```
-- [ ] Sanity-checked the numbers make sense (e.g. no single product's revenue > total)
-- [ ] Committed: `Stage 2: aggregation queries`
+- [x] Sanity-checked the numbers make sense (e.g. no single product's revenue > total)
+- [x] Committed: `Stage 2: aggregation queries`
 
 Notes:
 
