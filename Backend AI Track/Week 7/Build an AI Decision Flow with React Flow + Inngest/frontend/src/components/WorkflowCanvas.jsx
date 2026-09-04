@@ -11,6 +11,7 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import DecisionNode from "@/nodes/DecisionNode";
 import { Button } from "@/components/ui/button";
+import { triggerRun, getRun } from "@/lib/api";
 
 const STORAGE_KEY = "ai-workflow-graph";
 
@@ -25,6 +26,7 @@ const nextId = () => `node-${idCounter++}`;
 export default function WorkflowCanvas() {
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
+  const [runStatus, setRunStatus] = useState(null); // { status, history, error? }
   const nodeTypes = useMemo(() => ({ decision: DecisionNode }), []);
 
   // Load saved graph on mount
@@ -74,6 +76,19 @@ export default function WorkflowCanvas() {
     );
   }, []);
 
+  // Block a second edge coming out of the same yes/no handle
+  const isValidConnection = useCallback(
+    (connection) => {
+      const alreadyUsed = edges.some(
+        (e) =>
+          e.source === connection.source &&
+          e.sourceHandle === connection.sourceHandle
+      );
+      return !alreadyUsed;
+    },
+    [edges]
+  );
+
   const onPromptChange = useCallback((id, prompt) => {
     setNodes((nds) =>
       nds.map((n) => (n.id === id ? { ...n, data: { ...n.data, prompt } } : n))
@@ -98,17 +113,87 @@ export default function WorkflowCanvas() {
     ]);
   };
 
+  // Start node = the one decision node with no incoming edge.
+  // If multiple qualify, the first one found is used.
+  const getStartNodeId = () => {
+    const targets = new Set(edges.map((e) => e.target));
+    const start = nodes.find((n) => !targets.has(n.id));
+    return start?.id;
+  };
+
+  const runWorkflow = async () => {
+    const startNodeId = getStartNodeId();
+    if (!startNodeId) {
+      alert("No start node found (every node has an incoming edge).");
+      return;
+    }
+
+    const graph = {
+      nodes: Object.fromEntries(nodes.map((n) => [n.id, n])),
+      edges,
+    };
+
+    setRunStatus({ status: "running", history: [] });
+
+    try {
+      const { runId } = await triggerRun(graph, startNodeId);
+
+      const poll = setInterval(async () => {
+        const result = await getRun(runId);
+        setRunStatus(result);
+        if (result.status === "completed" || result.status === "failed") {
+          clearInterval(poll);
+        }
+      }, 1000);
+    } catch (err) {
+      setRunStatus({ status: "failed", history: [], error: err.message });
+    }
+  };
+
   return (
     <div className="w-full h-screen relative">
       <div className="absolute top-4 left-4 z-10 flex gap-2">
         <Button onClick={addNode}>+ Add Node</Button>
+        <Button
+          onClick={runWorkflow}
+          className="bg-emerald-600 hover:bg-emerald-700"
+        >
+          Run Workflow
+        </Button>
       </div>
+
+      {runStatus && (
+        <div className="absolute top-4 right-4 z-10 w-72 bg-white border rounded-md shadow-md p-3 text-sm">
+          <div className="font-medium mb-2">
+            Status: <span className="capitalize">{runStatus.status}</span>
+          </div>
+          <ul className="space-y-1">
+            {runStatus.history.map((h, i) => (
+              <li key={i} className="flex justify-between gap-2">
+                <span className="truncate">{h.nodeId}</span>
+                <span
+                  className={
+                    h.decision === "YES" ? "text-emerald-600" : "text-rose-600"
+                  }
+                >
+                  {h.decision}
+                </span>
+              </li>
+            ))}
+          </ul>
+          {runStatus.error && (
+            <p className="text-rose-600 mt-2 text-xs">{runStatus.error}</p>
+          )}
+        </div>
+      )}
+
       <ReactFlow
         nodes={nodesWithHandlers}
         edges={edges}
         onNodesChange={onNodesChange}
         onEdgesChange={onEdgesChange}
         onConnect={onConnect}
+        isValidConnection={isValidConnection}
         nodeTypes={nodeTypes}
         fitView
       >

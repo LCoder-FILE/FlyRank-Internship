@@ -61,12 +61,12 @@ Frontend only phase
 ## Phase 3 — Build (core) (~2h)
 **Goal:** Execute the workflow using Inngest and AI responses.
 
-- [ ] Each node maps to an Inngest step
-- [ ] Node prompt sent to an LLM (OpenAI)
-- [ ] Model constrained to return only `YES` or `NO`
-- [ ] Execution continues down the matching edge (YES → yes-node, NO → no-node)
-- [ ] Execution order tracked (list/log of visited nodes)
-- [ ] Checkpoint — example run:
+- [x] Each node maps to an Inngest step
+- [x] Node prompt sent to an LLM (OpenAI)
+- [x] Model constrained to return only `YES` or `NO`
+- [x] Execution continues down the matching edge (YES → yes-node, NO → no-node)
+- [x] Execution order tracked (list/log of visited nodes)
+- [x] Checkpoint — example run:
   ```
   Prompt: "Is this a support request?"
   Input: [what you tested with]
@@ -74,9 +74,44 @@ Frontend only phase
   Path taken: [node -> node -> node]
   ```
   - Dashboard shows the run stepping through nodes: **[ yes/no ]**
-- [ ] Committed: `Phase 3: workflow execution via Inngest`
+- [x] Committed: `Phase 3: workflow execution via Inngest`
 
 Notes:
+
+TO RUN THE OLLAMA:
+
+FlyRank-Internship>set CUDA_VISIBLE_DEVICES=-1
+
+FlyRank-Internship>ollama list
+
+NAME         ID              SIZE      MODIFIED    
+gemma3:1b    8648f39daa8f    815 MB    2 weeks ago    
+
+FlyRank-Internship>ollama serve
+
+Error: listen tcp 127.0.0.1:11434: bind: Only one usage of each socket address (protocol/network address/port) is normally permitted.
+
+FlyRank-Internship>tasklist | findstr ollama
+
+ollama app.exe                6376 Console                    3     24,840 K
+ollama.exe                   17676 Console                    3     33,896 K
+
+FlyRank-Internship>taskkill /IM "ollama app.exe" /F
+
+SUCCESS: The process "ollama app.exe" with PID 6376 has been terminated.
+
+
+FlyRank-Internship>taskkill /IM ollama.exe /F
+
+SUCCESS: The process "ollama.exe" with PID 17676 has been terminated.
+
+
+FlyRank-Internship>ollama serve
+
+
+TO RUN THE INNGEST:
+
+npx inngest-cli@latest dev -u http://localhost:8000/api/inngest
 
 ---
 
